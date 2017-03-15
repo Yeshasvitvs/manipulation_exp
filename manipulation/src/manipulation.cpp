@@ -53,9 +53,15 @@ Manipulation::Manipulation()
         char cwd[1024];
         if(getcwd(cwd,sizeof(cwd)) != NULL)
         {
-            data_directory_ = cwd;
-            data_directory_.replace(data_directory_.find("build"),5,"data");
+            current_directory_ = cwd;
+            current_directory_.replace(current_directory_.find("build"),5,"data");
+            data_directory_ = current_directory_;
             std::cout << "Data directory : " << data_directory_ << std::endl;
+            
+            current_directory_.replace(current_directory_.find("data"),5,"out_camera_data.yml");
+            calibration_file_name_ = current_directory_;
+            std::cout << "Calibration file : " << calibration_file_name_ << std::endl; 
+            
         }
         else std::cerr << "getcwd() error!" << std::endl;
         

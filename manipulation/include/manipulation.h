@@ -57,14 +57,14 @@ private:
      cv::aruco::DetectorParameters detection_params_;
      
      cv::Mat camera_matrix_, dist_coeffs_;
-     std::string calibration_file_name_ = "/home/yeshi/projects/manipulation_exp/manipulation/out_camera_data.yml";
-     //std::string calibration_file_name_;
+     std::string calibration_file_name_;
      cv::FileStorage fs;
      bool calib_success_;
      
 public:
     
     bool log_data_;
+    std::string current_directory_;
     std::string data_directory_;                        
     std::ofstream file_name_;
     
