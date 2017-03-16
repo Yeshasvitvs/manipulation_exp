@@ -362,6 +362,7 @@ bool Manipulation::getSensoryInputs()
     //TODO check which location will be better for a time stamp
     time_stamp_.update(); //Update the time stamp
     
+    //Reading new wrench values
     left_wrench_ = left_wrench_input_port_->read();
     right_wrench_ = right_wrench_input_port_->read();
     
@@ -380,3 +381,18 @@ bool Manipulation::getSensoryInputs()
         
     return true;
 }
+
+Manipulation::~Manipulation()
+{
+    image_input_port_->close();
+    delete image_input_port_;
+    
+    left_wrench_input_port_->close();
+    delete left_wrench_input_port_;
+    
+    right_wrench_input_port_->close();
+    delete right_wrench_input_port_;
+    
+
+}
+
