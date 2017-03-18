@@ -10,6 +10,8 @@ class ManipulationModule:public yarp::os::RFModule
 {
     yarp::os::RpcServer rpc_port;
     
+    std::string robotName;
+    
     Manipulation *manipulation;
     
 public:
@@ -78,7 +80,9 @@ public:
         if(rpc_port.open("/manipulationModule/rpc:i"))
             attach(rpc_port);
         
-        manipulation = new Manipulation();
+        robotName = rf.find("robot").asString();
+        
+        manipulation = new Manipulation(robotName);
         
         return true;
     }

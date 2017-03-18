@@ -32,12 +32,17 @@ class Manipulation
 {
 private:
     
+    std::string robot_name_;
+    
     yarp::os::Stamp time_stamp_;
+    std::string camera_port_name_;
     yarp::os::BufferedPort<yarp::sig::ImageOf< yarp::sig::PixelBgr > > *image_input_port_;
     yarp::sig::ImageOf< yarp::sig::PixelBgr > *input_yarp_frame_;
     cv::Mat input_yarp_to_mat_image_;
     yarp::os::Stamp image_ts_;
     
+    std::string left_wrench_port_name_;
+    std::string right_wrench_port_name_;
     yarp::os::BufferedPort<yarp::sig::Vector> *left_wrench_input_port_;
     yarp::os::BufferedPort<yarp::sig::Vector> *right_wrench_input_port_;
     
@@ -93,7 +98,7 @@ public:
     
     bool marker_detect_success_;
     
-    Manipulation();
+    Manipulation(std::string&);
     ~Manipulation();
     
     cv::Mat getCVMat(){return input_yarp_to_mat_image_;}

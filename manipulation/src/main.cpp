@@ -6,11 +6,18 @@ int main(int argc,char** argv)
     
     ManipulationModule maniModule;
     yarp::os::ResourceFinder rf;
-    //rf.setVerbose(true);
-    rf.configure(argc,argv);
+    if(argc < 2)
+    {
+        yError() << "Manipulation module error, configuration file not passed as an argument!";
+        return 1;
+    }
+    else rf.configure(argc,argv);
+    
+    if(!maniModule.runModule(rf))
+    {
+        std::cerr << "Manipulation Module failed to start!" << std::endl;
+        return 1;
+    }
        
-    maniModule.runModule(rf);
-    
     return 0;
-    
 }

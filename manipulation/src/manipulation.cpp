@@ -1,7 +1,8 @@
 #include <manipulation.h>
 
-Manipulation::Manipulation()
+Manipulation::Manipulation(std::string& robot)
 {
+    robot_name_ = robot;
     yInfo() << " Manipulation Constructor";
     bool port_connection;
     if(!yarp::os::Network::initialized())
@@ -12,7 +13,8 @@ Manipulation::Manipulation()
     {
         if(yarp::os::Network::checkNetwork())
         {
-            port_connection = yarp::os::Network::connect("/gazebo_yarp_plugin/camera:o",image_input_port_->getName());
+            camera_port_name_ = "/" + robot_name_ + "/gazebo_yarp_plugin/camera:o";
+            port_connection = yarp::os::Network::connect(camera_port_name_,image_input_port_->getName());
             if(!port_connection) yError() << "Cannot connect to the port  /gazebo_yarp_plugin/camera:o";
         }
         else yError() << "Check if YARP network is available!";
@@ -25,7 +27,8 @@ Manipulation::Manipulation()
     {
         if(yarp::os::Network::checkNetwork())
         {
-            port_connection = yarp::os::Network::connect("/floating_base_1R1P_2Link/first_link_handle/analog:o",left_wrench_input_port_->getName());
+            left_wrench_port_name_ = "/" + robot_name_ + "/first_link_handle/analog:o";
+            port_connection = yarp::os::Network::connect(left_wrench_port_name_,left_wrench_input_port_->getName());
             if(!port_connection) yError() << "Cannot connect to the port  /floating_base_1R1P_2Link/first_link_handle/analog:o";
         }
         else yError() << "Check if YARP network is available!";
@@ -37,7 +40,8 @@ Manipulation::Manipulation()
     {
         if(yarp::os::Network::checkNetwork())
         {
-            port_connection = yarp::os::Network::connect("/floating_base_1R1P_2Link/second_link_handle/analog:o",right_wrench_input_port_->getName());
+            right_wrench_port_name_ = "/" + robot_name_ + "/second_link_handle/analog:o";
+            port_connection = yarp::os::Network::connect(right_wrench_port_name_,right_wrench_input_port_->getName());
             if(!port_connection) yError() << "Cannot connect to the port  /floating_base_1R1P_2Link/second_link_handle/analog:o";
         }
         else yError() << "Check if YARP network is available!";
@@ -46,7 +50,6 @@ Manipulation::Manipulation()
     
     if(port_connection)
     {
-        yInfo() << "Initialization successful";
         //Initialization for ArUco markers
         marker_dictionary_ = cv::aruco::generateCustomDictionary(number_of_markers_,marker_dimension_);
         
@@ -70,6 +73,7 @@ Manipulation::Manipulation()
         
         //Initializing time stamp
         time_stamp_ = yarp::os::Stamp();
+        yInfo() << "Initialization successful";
     }
     else yError() << "Failed to initialize manipulation, check if the model is available in gazebo";
 }
@@ -393,6 +397,5 @@ Manipulation::~Manipulation()
     right_wrench_input_port_->close();
     delete right_wrench_input_port_;
     
-
 }
 
