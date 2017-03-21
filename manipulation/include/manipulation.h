@@ -107,6 +107,8 @@ public:
     void loadCameraCalibParams();
     bool detectMarkersAndComputePose();
     
+    void getPoseInfo();
+    
     void extractTrajectory(std::vector<int>&,std::vector<cv::Vec3d>&,std::vector<cv::Vec3d>&);
     bool getTrajectoryInfo();
     bool getWrenchInfo();

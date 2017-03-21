@@ -122,7 +122,8 @@ bool Manipulation::detectMarkersAndComputePose()
             {
                 //Pose values of each marker
                 cv::aruco::drawAxis(input_yarp_to_mat_image_,camera_matrix_,dist_coeffs_,rvecs[i],tvecs[i],0.1);
-                extractTrajectory(marker_ids_,rvecs,tvecs);
+                //extractTrajectory(marker_ids_,rvecs,tvecs);
+                getPoseInfo();
             }
         }
         else
@@ -133,6 +134,80 @@ bool Manipulation::detectMarkersAndComputePose()
     }
     return true;
 }
+
+void Manipulation::getPoseInfo()
+{
+    if(marker_ids_.size()-1 != 0)
+    {
+        for(int i=0; i < marker_ids_.size(); i++)
+        { 
+            //Sorting the marker ids
+            if( !std::is_sorted(marker_ids_.begin(),marker_ids_.end()) )
+            {
+                std::cout << "Sorting marker pose vectors" << std::endl;
+                //std::cout << "Actual Marker ids : " << marker_ids_ << "--->";
+                //std::cout << rvecs << " , " << tvecs;
+                
+                sorted_rvecs.resize(rvecs.size());
+                sorted_tvecs.resize(tvecs.size());
+                
+                //SORT the order of marker ids
+                sorted_marker_ids=marker_ids_;
+                std::sort(sorted_marker_ids.begin(),sorted_marker_ids.end());
+                //std::cout << "Sorted Marker ids : " << sorted_marker_ids << "--->";
+     
+                for(int s=0; s < sorted_marker_ids.size(); s++)
+                {
+                    for(int p=0; p < marker_ids_.size(); p++)
+                    {
+                        if(sorted_marker_ids.at(s)==marker_ids_.at(p))
+                        {
+                            sorted_rvecs.at(s) = rvecs.at(p);
+                            sorted_tvecs.at(s) = tvecs.at(p);
+                        }
+                    }
+                }
+                
+                //std::cout << sorted_rvecs << " , " << sorted_tvecs;
+                marker_ids_ = sorted_marker_ids;
+                rvecs = sorted_rvecs;
+                tvecs = sorted_tvecs;
+                
+                //Clearing the sorted vectors
+                sorted_rvecs.clear();
+                sorted_tvecs.clear();
+                sorted_marker_ids.clear();
+            }
+            
+            Eigen::Vector3d P;
+            cv::cv2eigen(tvecs[i],P);
+            
+            //Rotational vectors in angels
+            Eigen::Vector3d ang;
+            cv::cv2eigen(rvecs[i],ang);
+            
+            if(log_data_ != true)
+            {
+                yInfo() << "Marker ID : " << marker_ids_.at(i) << " " << P(0) << " " << P(1) << " " << P(2) \
+                        << " " << ang(0) << " " << ang(1) << " " << ang(2);
+            }
+            else
+            {
+                if(file_name_.is_open())
+                {
+                    file_name_ << " " << P(0) << " " << P(1) << " " << P(2) \
+                        << " " << ang(0) << " " << ang(1) << " " << ang(2);
+                }
+            }
+        }
+        getWrenchInfo();
+    }
+    else
+    {
+       std::cout << "Detected only single marker!" << std::endl;
+    }
+}
+
 
 void Manipulation::extractTrajectory(std::vector<int>& marker_ids_,std::vector<cv::Vec3d>& rvecs,std::vector<cv::Vec3d>& tvecs)
 {
@@ -147,7 +222,8 @@ void Manipulation::extractTrajectory(std::vector<int>& marker_ids_,std::vector<c
          //Track structure array variables
         boost::shared_ptr<Track> track_sptr {new Track[dummy_track_length],std::default_delete<Track[]>() };
         tracks.resize(dummy_track_length);
-    
+        
+        //TODO Double check the index starting
         for(int i=1; i < marker_ids_.size(); i++)
         { 
             
@@ -265,7 +341,7 @@ void Manipulation::extractTrajectory(std::vector<int>& marker_ids_,std::vector<c
     }
     else
     {
-        std::cout << "Detected only single marker!!!" << std::endl;
+        std::cout << "Detected only single marker!" << std::endl;
         for(int i=0; i < tracks.size(); i++)
         {
             tracks.at(i).modified = false;
