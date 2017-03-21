@@ -338,8 +338,26 @@ bool Manipulation::getWrenchInfo()
         
     }
     else
+    {
         //TODO Append it to the file in a same line a vision
-        file_name_ << " " << left_wrench_->toString()  << " " << right_wrench_->toString() << std::endl;
+        //file_name_ << " " << left_wrench_->toString()  << " " << right_wrench_->toString() << std::endl;
+        
+        double *left_data = left_wrench_->data();
+        for(int i = 0; i < left_wrench_->size(); i++)
+        {
+            file_name_ << " " << *left_data;
+            left_data++;
+        }
+        
+        double *right_data = right_wrench_->data();
+        for(int j = 0; j < right_wrench_->size(); j++)
+        {
+            file_name_ << " " << *right_data;
+            right_data++;
+        }
+        file_name_ << std::endl;
+    }
+    
     
     return true;
 }
