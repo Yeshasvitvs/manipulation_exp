@@ -33,8 +33,10 @@ class Manipulation
 private:
     
     std::string robot_name_;
-    
+    double time_init_;
+    double time_current_;
     yarp::os::Stamp time_stamp_;
+    double duration;
     std::string camera_port_name_;
     yarp::os::BufferedPort<yarp::sig::ImageOf< yarp::sig::PixelBgr > > *image_input_port_;
     yarp::sig::ImageOf< yarp::sig::PixelBgr > *input_yarp_frame_;

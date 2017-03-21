@@ -4,6 +4,7 @@ Manipulation::Manipulation(std::string& robot)
 {
     robot_name_ = robot;
     yInfo() << " Manipulation Constructor";
+    
     bool port_connection;
     if(!yarp::os::Network::initialized())
         yarp::os::Network::init();
@@ -73,6 +74,8 @@ Manipulation::Manipulation(std::string& robot)
         
         //Initializing time stamp
         time_stamp_ = yarp::os::Stamp();
+        time_init_ = time_stamp_.getTime();
+        duration = 0;
         yInfo() << "Initialization successful";
     }
     else yError() << "Failed to initialize manipulation, check if the model is available in gazebo";
@@ -188,14 +191,14 @@ void Manipulation::getPoseInfo()
             
             if(log_data_ != true)
             {
-                yInfo() << "Marker ID : " << marker_ids_.at(i) << " " << P(0) << " " << P(1) << " " << P(2) \
+                yInfo() <<  "[" << duration << "]" <<"Marker ID : " << marker_ids_.at(i) << " " << P(0) << " " << P(1) << " " << P(2) \
                         << " " << ang(0) << " " << ang(1) << " " << ang(2);
             }
             else
             {
                 if(file_name_.is_open())
                 {
-                    file_name_ << " " << P(0) << " " << P(1) << " " << P(2) \
+                    file_name_ << " " << duration <<  " " << marker_ids_.at(i) << " " << P(0) << " " << P(1) << " " << P(2) \
                         << " " << ang(0) << " " << ang(1) << " " << ang(2);
                 }
             }
@@ -460,6 +463,10 @@ bool Manipulation::getSensoryInputs()
     
     //TODO check which location will be better for a time stamp
     time_stamp_.update(); //Update the time stamp
+    time_current_ = time_stamp_.getTime();
+    duration = time_current_ - time_init_;
+    time_init_ = time_current_;
+    //yInfo() << "Duration : " << duration;
     
     //Reading new wrench values
     left_wrench_ = left_wrench_input_port_->read();
