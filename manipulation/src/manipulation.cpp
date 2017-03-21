@@ -224,6 +224,7 @@ void Manipulation::extractTrajectory(std::vector<int>& marker_ids_,std::vector<c
         tracks.resize(dummy_track_length);
         
         //TODO Double check the index starting
+        //This is fine because I need one less iteration than the markers id size
         for(int i=1; i < marker_ids_.size(); i++)
         { 
             
