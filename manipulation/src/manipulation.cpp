@@ -49,6 +49,7 @@ Manipulation::Manipulation(std::string& robot)
     }
     else yError() << "Failed to open the right ft input port!";
     
+    external_wrench_output_port_ = new yarp::os::BufferedPort<yarp::os::Bottle>;
     if(external_wrench_output_port_->open("/manipulation/multiExternalWrench/output:o"))
     {
         if(yarp::os::Network::checkNetwork())
