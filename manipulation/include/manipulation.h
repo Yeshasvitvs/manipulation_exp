@@ -37,6 +37,7 @@ private:
     double time_current_;
     yarp::os::Stamp time_stamp_;
     double duration;
+    
     std::string camera_port_name_;
     yarp::os::BufferedPort<yarp::sig::ImageOf< yarp::sig::PixelBgr > > *image_input_port_;
     yarp::sig::ImageOf< yarp::sig::PixelBgr > *input_yarp_frame_;
@@ -113,6 +114,7 @@ public:
     bool detectMarkersAndComputePose();
     
     void getPoseInfo();
+    void applyWrenches(); 
     
     void extractTrajectory(std::vector<int>&,std::vector<cv::Vec3d>&,std::vector<cv::Vec3d>&);
     bool getTrajectoryInfo();

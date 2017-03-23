@@ -90,6 +90,8 @@ Manipulation::Manipulation(std::string& robot)
         time_init_ = time_stamp_.getTime();
         duration = 0;
         yInfo() << "Initialization successful";
+        
+        applyWrenches();
     }
     else yError() << "Failed to initialize manipulation, check if the model is available in gazebo";
 }
@@ -114,6 +116,36 @@ void Manipulation::loadCameraCalibParams()
         calib_success_ = 1;
     }
 }
+
+void Manipulation::applyWrenches()
+{
+    yarp::os::Bottle& wrench = external_wrench_output_port_->prepare();
+    wrench.clear();
+    wrench.addString("first_link_handle");
+    wrench.addDouble(0); 
+    wrench.addDouble(0);
+    wrench.addDouble(-10000);
+    wrench.addDouble(0);
+    wrench.addDouble(0);
+    wrench.addDouble(0);
+    wrench.addDouble(100);
+    
+    external_wrench_output_port_->write(true);
+    
+    yarp::os::Bottle& wrench1 = external_wrench_output_port_->prepare();
+    wrench1.clear();
+    wrench1.addString("second_link_handle");
+    wrench1.addDouble(0); 
+    wrench1.addDouble(0);
+    wrench1.addDouble(-10000);
+    wrench1.addDouble(0);
+    wrench1.addDouble(0);
+    wrench1.addDouble(0);
+    wrench1.addDouble(100);
+    
+    external_wrench_output_port_->write(true);
+}
+
 
 bool Manipulation::detectMarkersAndComputePose()
 {
