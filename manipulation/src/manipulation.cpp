@@ -91,7 +91,7 @@ Manipulation::Manipulation(std::string& robot)
         duration = 0;
         yInfo() << "Initialization successful";
         
-        applyWrenches();
+        //applyWrenches();
     }
     else yError() << "Failed to initialize manipulation, check if the model is available in gazebo";
 }

@@ -67,6 +67,11 @@ public:
                     } 
                 }
             }
+            else if(cmd == "applyWrenches")
+            {
+                manipulation->applyWrenches();
+                reply.addString("Applying external wrenches [OK]");
+            }
             else reply.addString("UNKNOW COMMAND");
         }
         return true;
