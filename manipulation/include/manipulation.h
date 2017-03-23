@@ -53,6 +53,9 @@ private:
     yarp::os::Stamp left_wrench_ts_;
     yarp::os::Stamp right_wrench_ts_;
     
+    std::string external_wrench_port_name_;
+    yarp::os::BufferedPort<yarp::os::Bottle> *external_wrench_output_port_;
+    
     //ArUco Markers
      int number_of_markers_ = 6;
      int marker_dimension_ = 4;

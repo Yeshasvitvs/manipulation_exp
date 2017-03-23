@@ -49,6 +49,18 @@ Manipulation::Manipulation(std::string& robot)
     }
     else yError() << "Failed to open the right ft input port!";
     
+    if(external_wrench_output_port_->open("/manipulation/multiExternalWrench/output:o"))
+    {
+        if(yarp::os::Network::checkNetwork())
+        {
+            external_wrench_port_name_ = "/" + robot_name_ + "/applyMultiExternalWrench/rpc:i";
+            port_connection = yarp::os::Network::connect(external_wrench_output_port_->getName(),external_wrench_port_name_);
+            if(!port_connection) yError() << "Cannot connect to the port  /floating_base_1R1P_2Link/applyMultiExternalWrench/rpc:i";
+        }
+        else yError() << "Check if YARP network is available!";
+    }
+    else yError() << "Failed to open the right extenal wrench output port!";
+    
     if(port_connection)
     {
         //Initialization for ArUco markers
