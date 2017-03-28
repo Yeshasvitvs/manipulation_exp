@@ -11,12 +11,12 @@ bool ManipulationModule::updateModule()
     {
        if(manipulation->detectMarkersAndComputePose())
        {
-           /*image = manipulation->getCVMat();
+           image = manipulation->getCVMat();
            if(!image.empty())
            {
                if(manipulation->displayImage(image))
                    stopModule();
-           }*/
+           }
        }
        else yError() << "Failed to detects markers! Check if the model is loaded correctly in gazebo";
     }

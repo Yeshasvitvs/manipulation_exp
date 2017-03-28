@@ -49,7 +49,7 @@ Manipulation::Manipulation(std::string& robot)
     }
     else yError() << "Failed to open the right ft input port!";
     
-    external_wrench_output_port_ = new yarp::os::BufferedPort<yarp::os::Bottle>;
+    /*external_wrench_output_port_ = new yarp::os::BufferedPort<yarp::os::Bottle>;
     if(external_wrench_output_port_->open("/manipulation/multiExternalWrench/output:o"))
     {
         if(yarp::os::Network::checkNetwork())
@@ -60,7 +60,7 @@ Manipulation::Manipulation(std::string& robot)
         }
         else yError() << "Check if YARP network is available!";
     }
-    else yError() << "Failed to open the right extenal wrench output port!";
+    else yError() << "Failed to open the right extenal wrench output port!";*/
     
     if(port_connection)
     {
@@ -98,10 +98,18 @@ Manipulation::Manipulation(std::string& robot)
 
 void Manipulation::loadCameraCalibParams()
 {
-    fs.open(calibration_file_name_,cv::FileStorage::READ);
+    //Camera Calibration of Gazebo camera plugin
+    cv::Mat CM = (cv::Mat_<double>(3,3) << 1000, 0, 320, 0, 1000, 240, 0, 0, 1);
+    camera_matrix_ = CM;
+    
+    cv::Mat DM = (cv::Mat_<double>(5,1) << -0.25, 0.12, 0.0, -0.00028, -0.00005);
+    dist_coeffs_ = DM;
+    
+    //This uses calibration from laptop camera
+    /*fs.open(calibration_file_name_,cv::FileStorage::READ);
     fs["camera_matrix"] >> camera_matrix_;
     fs["distortion_coefficients"] >> dist_coeffs_;
-    fs.release();
+    fs.release();*/
     
     if(camera_matrix_.empty() || dist_coeffs_.empty())
     {
