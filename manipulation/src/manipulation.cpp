@@ -30,7 +30,7 @@ Manipulation::Manipulation(std::string& robot)
         {
             left_wrench_port_name_ = "/" + robot_name_ + "/first_link_handle/analog:o";
             port_connection = yarp::os::Network::connect(left_wrench_port_name_,left_wrench_input_port_->getName());
-            if(!port_connection) yError() << "Cannot connect to the port  /floating_base_1R1P_2Link/first_link_handle/analog:o";
+            if(!port_connection) yError() << "Cannot connect to the port  /" << robot_name_ << "/first_link_handle/analog:o";
         }
         else yError() << "Check if YARP network is available!";
     }
@@ -43,7 +43,7 @@ Manipulation::Manipulation(std::string& robot)
         {
             right_wrench_port_name_ = "/" + robot_name_ + "/second_link_handle/analog:o";
             port_connection = yarp::os::Network::connect(right_wrench_port_name_,right_wrench_input_port_->getName());
-            if(!port_connection) yError() << "Cannot connect to the port  /floating_base_1R1P_2Link/second_link_handle/analog:o";
+            if(!port_connection) yError() << "Cannot connect to the port  /" << robot_name_ << "/second_link_handle/analog:o";
         }
         else yError() << "Check if YARP network is available!";
     }
@@ -64,9 +64,6 @@ Manipulation::Manipulation(std::string& robot)
     
     if(port_connection)
     {
-        //Initialization for ArUco markers
-        marker_dictionary_ = cv::aruco::generateCustomDictionary(number_of_markers_,marker_dimension_);
-        
         char cwd[1024];
         if(getcwd(cwd,sizeof(cwd)) != NULL)
         {
@@ -79,8 +76,26 @@ Manipulation::Manipulation(std::string& robot)
             calibration_file_name_ = current_directory_;
             std::cout << "Calibration file : " << calibration_file_name_ << std::endl; 
             
+            current_directory_.replace(current_directory_.find("out_camera_data.yml"),19,"markers");
+            marker_directory_ = current_directory_;
+            std::cout << "Marker directory : " << marker_directory_ << std::endl;
         }
         else std::cerr << "getcwd() error!" << std::endl;
+        
+        //Initialization for ArUco markers
+        marker_dictionary_ = cv::aruco::generateCustomDictionary(number_of_markers_,marker_dimension_);
+        marker_images_ = new std::vector<cv::Mat>(number_of_markers_);
+        for(int i = 0; i < number_of_markers_; i++)
+        {
+            cv::aruco::drawMarker(marker_dictionary_,i,marker_pixel_resol,marker_images_->at(i),markerBorder_bits);
+            std::string file_name = boost::lexical_cast<std::string>(i) + ".jpg";
+            std::cout << "File Name : " << file_name << std::endl;
+            std::string location = marker_directory_ + "/" + file_name;std::cout << "location" << location << std::endl;
+            while(!cv::imwrite(location,marker_images_->at(i)))
+            {
+                continue;
+            }
+        }
         
         log_data_ = false;
         loadCameraCalibParams();
@@ -96,13 +111,18 @@ Manipulation::Manipulation(std::string& robot)
     else yError() << "Failed to initialize manipulation, check if the model is available in gazebo";
 }
 
+void Manipulation::saveMarkerImages()
+{
+    
+}
+
 void Manipulation::loadCameraCalibParams()
 {
     //Camera Calibration of Gazebo camera plugin
     cv::Mat CM = (cv::Mat_<double>(3,3) << 1000, 0, 320, 0, 1000, 240, 0, 0, 1);
     camera_matrix_ = CM;
     
-    cv::Mat DM = (cv::Mat_<double>(5,1) << -0.25, 0.12, 0.0, -0.00028, -0.00005);
+    cv::Mat DM = (cv::Mat_<double>(5,1) << -0.0, 0.0, 0.0, -0.0, -0.0);
     dist_coeffs_ = DM;
     
     //This uses calibration from laptop camera
@@ -154,6 +174,41 @@ void Manipulation::applyWrenches()
     external_wrench_output_port_->write(true);
 }
 
+void Manipulation::initMarkerDetectionParameters()
+{
+    //Thresholding parameters
+    /*detection_params_.adaptiveThreshWinSizeMin = 10;
+    detection_params_.adaptiveThreshWinSizeMax = 30;
+    detection_params_.adaptiveThreshWinSizeStep = 3;
+    detection_params_.adaptiveThreshConstant = 7;*/
+    
+    //Contour Filtering parameters
+    /*detection_params_.minMarkerPerimeterRate = 30/inputVideo_cap.get(CV_CAP_PROP_FRAME_WIDTH); //Specified relative to the max dimension of input image 640x0.05 = 32 pixels
+    detection_params_.maxMarkerPerimeterRate = 60/inputVideo_cap.get(CV_CAP_PROP_FRAME_WIDTH);
+    
+    detection_params_.minCornerDistanceRate = 0.05;
+    detection_params_.minMarkerDistanceRate = 0.05;
+    detection_params_.minDistanceToBorder = 3;*/
+   
+    //Bits extraction
+    /*detection_params_.markerBorderBits = markerBorder_bits;
+    detection_params_.minOtsuStdDev = 2;
+    detection_params_.perspectiveRemovePixelPerCell = 10;
+    detection_params_.perspectiveRemoveIgnoredMarginPerCell = 0.2;*/
+    
+    //Marker Identification
+    //detection_params_.maxErroneousBitsInBorderRate = 0.2; //Relative to the total number of bits
+    //detection_params_.errorCorrectionRate = 0.6;
+    
+    //Corner Refinement
+    detection_params_.doCornerRefinement = true;
+    detection_params_.cornerRefinementWinSize = 5;
+    detection_params_.cornerRefinementMaxIterations = 100;
+    detection_params_.cornerRefinementMinAccuracy = 0.1;
+
+    yInfo() << "Initialized marker detection parameters";
+}
+
 
 bool Manipulation::detectMarkersAndComputePose()
 {
@@ -173,11 +228,11 @@ bool Manipulation::detectMarkersAndComputePose()
         cv::aruco::drawDetectedMarkers(input_yarp_to_mat_image_,marker_corners_,marker_ids_);
         if(calib_success_ == 1)
         {
-            cv::aruco::estimatePoseSingleMarkers(marker_corners_,0.05,camera_matrix_,dist_coeffs_,rvecs,tvecs);
+            cv::aruco::estimatePoseSingleMarkers(marker_corners_,marker_size_in_meters_,camera_matrix_,dist_coeffs_,rvecs,tvecs);
             for(int i=0; i < marker_ids_.size(); i++)
             {
                 //Pose values of each marker
-                cv::aruco::drawAxis(input_yarp_to_mat_image_,camera_matrix_,dist_coeffs_,rvecs[i],tvecs[i],0.1);
+                cv::aruco::drawAxis(input_yarp_to_mat_image_,camera_matrix_,dist_coeffs_,rvecs[i],tvecs[i],axis_length_);
                 //extractTrajectory(marker_ids_,rvecs,tvecs);
                 getPoseInfo();
             }
@@ -244,7 +299,12 @@ void Manipulation::getPoseInfo()
             
             if(log_data_ != true)
             {
-                yInfo() <<  "[" << duration << "]" <<"Marker ID : " << marker_ids_.at(i) << " " << P(0) << " " << P(1) << " " << P(2) \
+                //Testing cv::Vec3d to Eigen::Vector3d
+                //std::cout << "Marker ID : " << marker_ids_.at(i) << " cv::Vec3d values : " << tvecs[i] << " " << rvecs[i] << std::endl;
+                
+                //yInfo() << "Marker ID : " << marker_ids_.at(i) <<  "Eigen:Vec3d values : " << P(0) << " " << P(1) << " " << P(2) \
+                        << " " << ang(0) << " " << ang(1) << " " << ang(2);
+                yInfo() <<  "[" << duration << "]" <<"Marker ID " << marker_ids_.at(i) << " : " << P(0) << " " << P(1) << " " << P(2) \
                         << " " << ang(0) << " " << ang(1) << " " << ang(2);
             }
             else
@@ -334,10 +394,13 @@ void Manipulation::extractTrajectory(std::vector<int>& marker_ids_,std::vector<c
             cv::cv2eigen(tvecs[i-1],P1);
             cv::cv2eigen(tvecs[i],P2);
             
+            
             //Rotational vectors in angels
             Eigen::Vector3d ang1,ang2;
             cv::cv2eigen(rvecs[i-1],ang1);
             cv::cv2eigen(rvecs[i],ang2);
+            
+           std::cout << "ang1 : " << ang1 << " ang2 : " << ang2; 
             
             //This is differecen in orientation in RYP 
             //TODO Check this convention for ArUco markers
@@ -427,12 +490,12 @@ bool Manipulation::getTrajectoryInfo()
                     {
                         geometry_msgs::Transform dummy = tracks.at(i).obs.at(o)->transform;
                         
-                        yInfo() << "Track ID : " << tracks.at(i).id << " ---> " << "[ " <<
+                        /*yInfo() << "Track ID : " << tracks.at(i).id << " ---> " << "[ " <<
                                                tracks.at(i).obs.at(o)->time << " ] "
                                                << dummy.translation.x << " " << dummy.translation.y << " " 
                                                << dummy.translation.z << " " << dummy.rotation.w << " " 
                                                << dummy.rotation.x << " " << dummy.rotation.y << " " <<
-                                               dummy.rotation.z ;
+                                               dummy.rotation.z ;*/
                         
                     }
                     else
@@ -466,8 +529,8 @@ bool Manipulation::getWrenchInfo()
 {
     if(log_data_ != true)
     {
-        yInfo() << "Left wrench : " << left_wrench_->toString();
-        yInfo() << "Right wrench : " << right_wrench_->toString();
+        //yInfo() << "Left wrench : " << left_wrench_->toString();
+        //yInfo() << "Right wrench : " << right_wrench_->toString();
         
     }
     else

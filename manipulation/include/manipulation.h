@@ -27,6 +27,7 @@
 #include <opencv2/core/eigen.hpp>
 
 #include <geometry_msgs/Transform.h>
+#include <boost/lexical_cast.hpp>
 
 class Manipulation
 {
@@ -58,9 +59,16 @@ private:
     yarp::os::BufferedPort<yarp::os::Bottle> *external_wrench_output_port_;
     
     //ArUco Markers
-     int number_of_markers_ = 6;
-     int marker_dimension_ = 4;
+     int number_of_markers_ = 10;
+     int marker_dimension_ = 5;
+     float markerBorder_bits = 1;
+     int marker_pixel_resol = 300;
+     float marker_size_in_meters_ = 0.045;
+     float axis_length_ = 0.1;
+     std::string marker_directory_;
      cv::aruco::Dictionary marker_dictionary_;
+     std::vector<cv::Mat>* marker_images_;
+     
      
      std::vector<int> marker_ids_, sorted_marker_ids;
      std::vector<cv::Vec3d> rvecs, tvecs, sorted_rvecs, sorted_tvecs;
@@ -111,6 +119,8 @@ public:
     bool displayImage(cv::Mat&);
     bool getSensoryInputs();
     void loadCameraCalibParams();
+    void saveMarkerImages();
+    void initMarkerDetectionParameters();
     bool detectMarkersAndComputePose();
     
     void getPoseInfo();

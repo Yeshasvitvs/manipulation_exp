@@ -88,6 +88,7 @@ public:
         robotName = rf.find("robot").asString();
         
         manipulation = new Manipulation(robotName);
+        manipulation->initMarkerDetectionParameters();
         
         return true;
     }

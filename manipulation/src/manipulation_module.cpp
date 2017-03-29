@@ -20,6 +20,7 @@ bool ManipulationModule::updateModule()
        }
        else yError() << "Failed to detects markers! Check if the model is loaded correctly in gazebo";
     }
+    
     return true;
 }
 
