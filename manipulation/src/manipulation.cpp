@@ -122,7 +122,7 @@ void Manipulation::loadCameraCalibParams()
     cv::Mat CM = (cv::Mat_<double>(3,3) << 1000, 0, 320, 0, 1000, 240, 0, 0, 1);
     camera_matrix_ = CM;
     
-    cv::Mat DM = (cv::Mat_<double>(5,1) << -0.0, 0.0, 0.0, -0.0, -0.0);
+    cv::Mat DM = (cv::Mat_<double>(5,1) << -0.4, -0.5, -0.3, 0.0, 0.0);
     dist_coeffs_ = DM;
     
     //This uses calibration from laptop camera
