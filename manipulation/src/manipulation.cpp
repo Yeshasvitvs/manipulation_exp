@@ -100,6 +100,9 @@ Manipulation::Manipulation(std::string& robot)
         log_data_ = false;
         loadCameraCalibParams();
         
+        //getting marker object points
+        getSingleMarkerObjectPoints(marker_size_in_meters_,marker_object_points_);
+        std::cout << "Marker object points : " << marker_object_points_ << std::endl;
         //Initializing time stamp
         time_stamp_ = yarp::os::Stamp();
         time_init_ = time_stamp_.getTime();
@@ -110,6 +113,20 @@ Manipulation::Manipulation(std::string& robot)
     }
     else yError() << "Failed to initialize manipulation, check if the model is available in gazebo";
 }
+
+void Manipulation::getSingleMarkerObjectPoints(float markerLength, cv::OutputArray _objPoints)
+{
+    CV_Assert(markerLength > 0);
+
+    _objPoints.create(4, 1, CV_32FC3);
+    cv::Mat objPoints = _objPoints.getMat();
+    // set coordinate system in the middle of the marker, with Z pointing out
+    objPoints.ptr< cv::Vec3f >(0)[0] = cv::Vec3f(-markerLength / 2.f, markerLength / 2.f, 0);
+    objPoints.ptr< cv::Vec3f >(0)[1] = cv::Vec3f(markerLength / 2.f, markerLength / 2.f, 0);
+    objPoints.ptr< cv::Vec3f >(0)[2] = cv::Vec3f(markerLength / 2.f, -markerLength / 2.f, 0);
+    objPoints.ptr< cv::Vec3f >(0)[3] = cv::Vec3f(-markerLength / 2.f, -markerLength / 2.f, 0);
+}
+
 
 void Manipulation::saveMarkerImages()
 {
@@ -202,9 +219,9 @@ void Manipulation::initMarkerDetectionParameters()
     
     //Corner Refinement
     detection_params_.doCornerRefinement = true;
-    detection_params_.cornerRefinementWinSize = 5;
-    detection_params_.cornerRefinementMaxIterations = 100;
-    detection_params_.cornerRefinementMinAccuracy = 0.1;
+    //detection_params_.cornerRefinementWinSize = 5;
+    //detection_params_.cornerRefinementMaxIterations = 100;
+    //detection_params_.cornerRefinementMinAccuracy = 0.1;
 
     yInfo() << "Initialized marker detection parameters";
 }
@@ -228,14 +245,33 @@ bool Manipulation::detectMarkersAndComputePose()
         cv::aruco::drawDetectedMarkers(input_yarp_to_mat_image_,marker_corners_,marker_ids_);
         if(calib_success_ == 1)
         {
-            cv::aruco::estimatePoseSingleMarkers(marker_corners_,marker_size_in_meters_,camera_matrix_,dist_coeffs_,rvecs,tvecs);
+            //TODO I can call SolvePNP myself 
+            //cv::aruco::estimatePoseSingleMarkers(marker_corners_,marker_size_in_meters_,camera_matrix_,dist_coeffs_,rvecs,tvecs);
+            
+            rvecs.resize(marker_ids_.size());
+            tvecs.resize(marker_ids_.size());
+            
             for(int i=0; i < marker_ids_.size(); i++)
             {
+                //TODO Call SolvePNP for each marker
+                cv::InputArray corners = marker_corners_.at(i);
+                //callSolvePNP(corners);
+                
+                raux = cv::Mat::zeros(3,1,cv::DataType<double>::type);
+                taux = cv::Mat::zeros(3,1,cv::DataType<double>::type);
+                
+                cv::solvePnP(marker_object_points_,corners,camera_matrix_,dist_coeffs_,raux,taux);
+                
+                rvecs.at(i) = cv::Vec3d(raux);
+                tvecs.at(i) = cv::Vec3d(taux);
+                
+                std::cout << rvecs.at(i) << " , " << tvecs.at(i) << std::endl;
+                
                 //Pose values of each marker
                 cv::aruco::drawAxis(input_yarp_to_mat_image_,camera_matrix_,dist_coeffs_,rvecs[i],tvecs[i],axis_length_);
                 //extractTrajectory(marker_ids_,rvecs,tvecs);
-                getPoseInfo();
             }
+            getPoseInfo();
         }
         else
         {
@@ -246,6 +282,30 @@ bool Manipulation::detectMarkersAndComputePose()
     return true;
 }
 
+void Manipulation::callSolvePNP(cv::InputArray imageCornerPoints)
+{
+    
+    //compute this iteratively
+    std::cout << "SolvePNP called" << std::endl;
+
+    //Zero initialization
+    raux = cv::Mat::zeros(3,1,cv::DataType<double>::type);
+    taux = cv::Mat::zeros(3,1,cv::DataType<double>::type);
+    
+    cv::solvePnP(marker_object_points_,imageCornerPoints,camera_matrix_,dist_coeffs_,raux,taux);
+    
+    singleMarkerTranformationVector.clear();
+    
+    singleMarkerTranformationVector.push_back(raux);
+    singleMarkerTranformationVector.push_back(taux);
+    
+    //std::cout << raux << " , " << taux;
+    
+    
+    
+}
+
+
 void Manipulation::getPoseInfo()
 {
     if(marker_ids_.size()-1 != 0)
@@ -253,7 +313,7 @@ void Manipulation::getPoseInfo()
         for(int i=0; i < marker_ids_.size(); i++)
         { 
             //Sorting the marker ids
-            if( !std::is_sorted(marker_ids_.begin(),marker_ids_.end()) )
+            /*if( !std::is_sorted(marker_ids_.begin(),marker_ids_.end()) )
             {
                 std::cout << "Sorting marker pose vectors" << std::endl;
                 //std::cout << "Actual Marker ids : " << marker_ids_ << "--->";
@@ -288,10 +348,14 @@ void Manipulation::getPoseInfo()
                 sorted_rvecs.clear();
                 sorted_tvecs.clear();
                 sorted_marker_ids.clear();
-            }
+            }*/
             
             Eigen::Vector3d P;
             cv::cv2eigen(tvecs[i],P);
+            
+            //Rotation vector to Rotation Matrix
+            cv::Mat rotMat;
+            cv::Rodrigues(rvecs[i],rotMat);
             
             //Rotational vectors in angels
             Eigen::Vector3d ang;
@@ -304,7 +368,7 @@ void Manipulation::getPoseInfo()
                 
                 //yInfo() << "Marker ID : " << marker_ids_.at(i) <<  "Eigen:Vec3d values : " << P(0) << " " << P(1) << " " << P(2) \
                         << " " << ang(0) << " " << ang(1) << " " << ang(2);
-                yInfo() <<  "[" << duration << "]" <<"Marker ID " << marker_ids_.at(i) << " : " << P(0) << " " << P(1) << " " << P(2) \
+                yInfo() <<  "[   " << duration << "   ]" <<"Marker ID " << marker_ids_.at(i) << " : " << P(0) << " " << P(1) << " " << P(2) \
                         << " " << ang(0) << " " << ang(1) << " " << ang(2);
             }
             else
@@ -312,7 +376,7 @@ void Manipulation::getPoseInfo()
                 if(file_name_.is_open())
                 {
                     file_name_ << " " << duration <<  " " << marker_ids_.at(i) << " " << P(0) << " " << P(1) << " " << P(2) \
-                        << " " << ang(0) << " " << ang(1) << " " << ang(2);
+                        << " " << ang(0) << " " << ang(1) << " " << ang(2); 
                 }
             }
         }

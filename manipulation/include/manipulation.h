@@ -63,7 +63,9 @@ private:
      int marker_dimension_ = 5;
      float markerBorder_bits = 1;
      int marker_pixel_resol = 300;
-     float marker_size_in_meters_ = 0.045;
+     float marker_size_in_meters_ = 0.05;
+     cv::Mat marker_object_points_;
+     
      float axis_length_ = 0.1;
      std::string marker_directory_;
      cv::aruco::Dictionary marker_dictionary_;
@@ -71,6 +73,10 @@ private:
      
      
      std::vector<int> marker_ids_, sorted_marker_ids;
+     cv::Mat raux;
+     cv::Mat taux;
+     std::vector<cv::Mat> singleMarkerTranformationVector;
+     
      std::vector<cv::Vec3d> rvecs, tvecs, sorted_rvecs, sorted_tvecs;
      std::vector<std::vector<cv::Point2f>> marker_corners_, rejected_candidates_;
      cv::aruco::DetectorParameters detection_params_;
@@ -122,6 +128,9 @@ public:
     void saveMarkerImages();
     void initMarkerDetectionParameters();
     bool detectMarkersAndComputePose();
+    
+    void getSingleMarkerObjectPoints(float, cv::OutputArray); 
+    void callSolvePNP(cv::InputArray imagePoints);
     
     void getPoseInfo();
     void applyWrenches(); 
