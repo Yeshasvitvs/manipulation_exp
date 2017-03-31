@@ -257,15 +257,47 @@ bool Manipulation::detectMarkersAndComputePose()
                 cv::InputArray corners = marker_corners_.at(i);
                 //callSolvePNP(corners);
                 
-                raux = cv::Mat::zeros(3,1,cv::DataType<double>::type);
-                taux = cv::Mat::zeros(3,1,cv::DataType<double>::type);
                 
-                cv::solvePnP(marker_object_points_,corners,camera_matrix_,dist_coeffs_,raux,taux);
                 
-                rvecs.at(i) = cv::Vec3d(raux);
-                tvecs.at(i) = cv::Vec3d(taux);
+                auto marker_id_map_search = previous_pose_values_.find(i);
+                if(marker_id_map_search != previous_pose_values_.end())
+                {
+                    //TODO use the previous pose values here
+                    std::cout << "solvePnP called with previous pose values" << std::endl;
+                    std::vector<cv::Vec3d> pose = marker_id_map_search->second;
+                    rvecs.at(i) = cv::Vec3d(pose.at(0));
+                    tvecs.at(i) = cv::Vec3d(pose.at(1));
+                    
+                    cv::solvePnP(marker_object_points_,corners,camera_matrix_,dist_coeffs_,rvecs[i],tvecs[i],true,CV_ITERATIVE);
+                    
+                    std::vector<cv::Vec3d> poseVec{rvecs[i],tvecs[i]};
+                    previous_pose_values_[i] = poseVec;
+                    
+                    //TODO compute the projected points error and update the previous pose map only if the error is small                    
+                    
+                }
+                else 
+                {
+                    //Make normal call to solvePnP
+                    std::cout << "Normal solvePnP" << std::endl;
+                    raux = cv::Mat::zeros(3,1,cv::DataType<double>::type);
+                    taux = cv::Mat::zeros(3,1,cv::DataType<double>::type);
+                    
+                    cv::solvePnP(marker_object_points_,corners,camera_matrix_,dist_coeffs_,raux,taux);
+                    
+                    rvecs.at(i) = cv::Vec3d(raux);
+                    tvecs.at(i) = cv::Vec3d(taux);
+                    
+                    //Inserting pose values in the marker map
+                    
+                    std::vector<cv::Vec3d> poseVec{raux,taux};
+                    previous_pose_values_[i] = poseVec;
+                }
                 
-                std::cout << rvecs.at(i) << " , " << tvecs.at(i) << std::endl;
+                
+                
+                
+                //std::cout << rvecs.at(i) << " , " << tvecs.at(i) << std::endl;
                 
                 //Pose values of each marker
                 cv::aruco::drawAxis(input_yarp_to_mat_image_,camera_matrix_,dist_coeffs_,rvecs[i],tvecs[i],axis_length_);

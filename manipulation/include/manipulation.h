@@ -76,6 +76,7 @@ private:
      cv::Mat raux;
      cv::Mat taux;
      std::vector<cv::Mat> singleMarkerTranformationVector;
+     std::map<int,std::vector<cv::Vec3d>> previous_pose_values_;
      
      std::vector<cv::Vec3d> rvecs, tvecs, sorted_rvecs, sorted_tvecs;
      std::vector<std::vector<cv::Point2f>> marker_corners_, rejected_candidates_;
