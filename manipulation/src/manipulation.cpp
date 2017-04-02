@@ -258,8 +258,28 @@ bool Manipulation::detectMarkersAndComputePose()
                 //callSolvePNP(corners);
                 
                 
+                rvecs.at(i)[0] = 0;
+                rvecs.at(i)[1] = 0;
+                rvecs.at(i)[2] = 0;
+                    
+                tvecs.at(i)[0] = 0;
+                tvecs.at(i)[1] = 0;
+                tvecs.at(i)[2] = 0;
                 
-                auto marker_id_map_search = previous_pose_values_.find(i);
+                cv::solvePnP(marker_object_points_,corners,camera_matrix_,dist_coeffs_,rvecs[i],tvecs[i],false,cv:: SOLVEPNP_ITERATIVE);
+                
+                // Compute covariance matrix of rotation and translation
+                cv::Mat poseCov;
+                std::vector<cv::Point2f> points;
+                cv::projectPoints(marker_object_points_, rvecs.at(i), tvecs.at(i), camera_matrix_, dist_coeffs_, points, poseCov);
+                cv::Mat Sigma = cv::Mat(poseCov.t() * poseCov, cv::Rect(0,0,6,6)).inv();
+
+                // Compute standard deviation
+                cv::Mat std_dev;
+                sqrt(Sigma.diag(), std_dev);
+                std::cout << " Marker ID " << marker_ids_.at(i) << " rvec, tvec standard deviation : " << std_dev << std::endl;
+                
+                /*auto marker_id_map_search = previous_pose_values_.find(i);
                 if(marker_id_map_search != previous_pose_values_.end())
                 {
                     //TODO use the previous pose values here
@@ -268,7 +288,15 @@ bool Manipulation::detectMarkersAndComputePose()
                     rvecs.at(i) = cv::Vec3d(pose.at(0));
                     tvecs.at(i) = cv::Vec3d(pose.at(1));
                     
-                    cv::solvePnP(marker_object_points_,corners,camera_matrix_,dist_coeffs_,rvecs[i],tvecs[i],true,CV_ITERATIVE);
+                    //rvecs.at(i)[0] = 0;
+                    //rvecs.at(i)[1] = 0;
+                    //rvecs.at(i)[2] = 0;
+                    
+                    //tvecs.at(i)[0] = 0;
+                    //tvecs.at(i)[1] = 0;
+                    //tvecs.at(i)[2] = 0;
+                    
+                    cv::solvePnP(marker_object_points_,corners,camera_matrix_,dist_coeffs_,rvecs[i],tvecs[i],false,cv:: SOLVEPNP_ITERATIVE);
                     
                     std::vector<cv::Vec3d> poseVec{rvecs[i],tvecs[i]};
                     previous_pose_values_[i] = poseVec;
@@ -292,7 +320,7 @@ bool Manipulation::detectMarkersAndComputePose()
                     
                     std::vector<cv::Vec3d> poseVec{raux,taux};
                     previous_pose_values_[i] = poseVec;
-                }
+                }*/
                 
                 
                 
