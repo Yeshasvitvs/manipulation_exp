@@ -136,7 +136,7 @@ void Manipulation::saveMarkerImages()
 void Manipulation::loadCameraCalibParams()
 {
     //Camera Calibration of Gazebo camera plugin
-    cv::Mat CM = (cv::Mat_<double>(3,3) << 1000, 0, 320, 0, 1000, 240, 0, 0, 1);
+    cv::Mat CM = (cv::Mat_<double>(3,3) << 510, 0, 320, 0, 510, 240, 0, 0, 1);
     camera_matrix_ = CM;
     
     cv::Mat DM = (cv::Mat_<double>(5,1) << -0.4, -0.5, -0.3, 0.0, 0.0);
@@ -266,6 +266,7 @@ bool Manipulation::detectMarkersAndComputePose()
                 tvecs.at(i)[1] = 0;
                 tvecs.at(i)[2] = 0;
                 
+                std::vector<cv::Point2f> inliers;
                 cv::solvePnP(marker_object_points_,corners,camera_matrix_,dist_coeffs_,rvecs[i],tvecs[i],false,cv:: SOLVEPNP_ITERATIVE);
                 
                 // Compute covariance matrix of rotation and translation
@@ -373,7 +374,7 @@ void Manipulation::getPoseInfo()
         for(int i=0; i < marker_ids_.size(); i++)
         { 
             //Sorting the marker ids
-            /*if( !std::is_sorted(marker_ids_.begin(),marker_ids_.end()) )
+            if( !std::is_sorted(marker_ids_.begin(),marker_ids_.end()) )
             {
                 std::cout << "Sorting marker pose vectors" << std::endl;
                 //std::cout << "Actual Marker ids : " << marker_ids_ << "--->";
@@ -408,7 +409,7 @@ void Manipulation::getPoseInfo()
                 sorted_rvecs.clear();
                 sorted_tvecs.clear();
                 sorted_marker_ids.clear();
-            }*/
+            }
             
             Eigen::Vector3d P;
             cv::cv2eigen(tvecs[i],P);
