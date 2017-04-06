@@ -278,7 +278,7 @@ bool Manipulation::detectMarkersAndComputePose()
                 // Compute standard deviation
                 cv::Mat std_dev;
                 sqrt(Sigma.diag(), std_dev);
-                std::cout << " Marker ID " << marker_ids_.at(i) << " rvec, tvec standard deviation : " << std_dev << std::endl;
+                //std::cout << " Marker ID " << marker_ids_.at(i) << " rvec, tvec standard deviation : " << std_dev << std::endl;
                 
                 /*auto marker_id_map_search = previous_pose_values_.find(i);
                 if(marker_id_map_search != previous_pose_values_.end())
