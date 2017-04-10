@@ -11,6 +11,7 @@ class ManipulationModule:public yarp::os::RFModule
     yarp::os::RpcServer rpc_port;
     
     std::string robotName;
+    std::string extPosePortName;
     
     Manipulation *manipulation;
     
@@ -86,8 +87,9 @@ public:
             attach(rpc_port);
         
         robotName = rf.find("robot").asString();
+        extPosePortName = rf.find("ext_pose_port_name").asString();
         
-        manipulation = new Manipulation(robotName);
+        manipulation = new Manipulation(robotName,extPosePortName);
         manipulation->initMarkerDetectionParameters();
         
         return true;

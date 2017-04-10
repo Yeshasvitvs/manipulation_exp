@@ -1,9 +1,10 @@
 #include <manipulation.h>
 
-Manipulation::Manipulation(std::string& robot)
+Manipulation::Manipulation(std::string& robot,std::string& port_name)
 {
-    robot_name_ = robot;
     yInfo() << " Manipulation Constructor";
+    robot_name_ = robot;
+    ext_pose_port_name = port_name;
     
     bool port_connection;
     if(!yarp::os::Network::initialized())
@@ -61,7 +62,17 @@ Manipulation::Manipulation(std::string& robot)
         else yError() << "Check if YARP network is available!";
     }
     else yError() << "Failed to open the right extenal wrench output port!";*/
-    
+    input_pose_port = new yarp::os::BufferedPort<yarp::os::Bottle>;
+    if(input_pose_port->open("/manipulation/pose_input:i"))
+    {
+        if(yarp::os::Network::checkNetwork())
+        {
+            port_connection = yarp::os::Network::connect(ext_pose_port_name,input_pose_port->getName());
+            if(!port_connection) yError() << "Cannot connect to the port " << ext_pose_port_name;
+        }
+        else yError() << "Check if YARP network is available!";
+    }
+    else yError() << "Failed to open pose input port!";
     if(port_connection)
     {
         char cwd[1024];

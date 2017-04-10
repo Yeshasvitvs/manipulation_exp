@@ -45,6 +45,10 @@ private:
     cv::Mat input_yarp_to_mat_image_;
     yarp::os::Stamp image_ts_;
     
+    //Markers link pose from gazebo
+    std::string ext_pose_port_name;
+    yarp::os::BufferedPort<yarp::os::Bottle> *input_pose_port;
+    
     std::string left_wrench_port_name_;
     std::string right_wrench_port_name_;
     yarp::os::BufferedPort<yarp::sig::Vector> *left_wrench_input_port_;
@@ -119,7 +123,7 @@ public:
     
     bool marker_detect_success_;
     
-    Manipulation(std::string&);
+    Manipulation(std::string&,std::string&);
     ~Manipulation();
     
     cv::Mat getCVMat(){return input_yarp_to_mat_image_;}
