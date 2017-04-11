@@ -202,6 +202,63 @@ void Manipulation::applyWrenches()
     external_wrench_output_port_->write(true);
 }
 
+bool Manipulation::getPoseAndWrenchInput()
+{
+    
+    bool input_read = true; 
+    
+    //Reading pose values from gazebo
+    yarp::os::Bottle *pose = input_pose_port->read();
+    if(pose == NULL)
+        input_read = false;
+    else
+        pose_input = *pose;
+    
+    //Reading new wrench values
+    left_wrench_ = left_wrench_input_port_->read();
+    if(left_wrench_ == NULL)
+        input_read = false;
+    
+    right_wrench_ = right_wrench_input_port_->read();
+    if(right_wrench_ == NULL)
+        input_read = false;
+    
+    return input_read;
+}
+
+void Manipulation::getPoseAndWrenchInfo()
+{
+    if(log_data_ != true)
+    {
+        yInfo() << pose_input.toString() << " " << left_wrench_->toString() << " " << right_wrench_->toString();
+    }
+    else
+    {
+        std::string time = pose_input.get(0).asString();
+        file_name_ << time;
+        for(int i=1; i < pose_input.size(); i++)
+        {
+            double value = pose_input.get(i).asDouble();
+            file_name_ << " " << value;
+        }
+        
+        double *left_data = left_wrench_->data();
+        for(int i = 0; i < left_wrench_->size(); i++)
+        {
+            file_name_ << " " << *left_data;
+            left_data++;
+        }
+        
+        double *right_data = right_wrench_->data();
+        for(int j = 0; j < right_wrench_->size(); j++)
+        {
+            file_name_ << " " << *right_data;
+            right_data++;
+        }
+        file_name_ << std::endl;
+    }
+}
+
 void Manipulation::initMarkerDetectionParameters()
 {
     //Thresholding parameters
@@ -372,11 +429,7 @@ void Manipulation::callSolvePNP(cv::InputArray imageCornerPoints)
     singleMarkerTranformationVector.push_back(taux);
     
     //std::cout << raux << " , " << taux;
-    
-    
-    
 }
-
 
 void Manipulation::getPoseInfo()
 {
@@ -750,6 +803,9 @@ Manipulation::~Manipulation()
     
     right_wrench_input_port_->close();
     delete right_wrench_input_port_;
+    
+    input_pose_port->close();
+    delete input_pose_port;
     
 }
 

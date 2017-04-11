@@ -7,7 +7,7 @@ double ManipulationModule::getPeriod()
 
 bool ManipulationModule::updateModule()
 {
-    if(manipulation->getSensoryInputs())
+    /*if(manipulation->getSensoryInputs())
     {
        if(manipulation->detectMarkersAndComputePose())
        {
@@ -19,6 +19,16 @@ bool ManipulationModule::updateModule()
            }
        }
        else yError() << "Failed to detects markers! Check if the model is loaded correctly in gazebo";
+    }*/
+    
+    if(manipulation->getPoseAndWrenchInput())
+    {
+        //TODO write them to a text file together
+        manipulation->getPoseAndWrenchInfo();
+    }
+    else{
+        yError() << "Error in reading gazebo pose and wrench input values";
+        return false;
     }
     
     return true;

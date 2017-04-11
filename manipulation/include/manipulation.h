@@ -60,6 +60,7 @@ private:
     yarp::os::Stamp right_wrench_ts_;
     
     std::string external_wrench_port_name_;
+    yarp::os::Bottle pose_input;
     yarp::os::BufferedPort<yarp::os::Bottle> *external_wrench_output_port_;
     
     //ArUco Markers
@@ -143,6 +144,9 @@ public:
     void extractTrajectory(std::vector<int>&,std::vector<cv::Vec3d>&,std::vector<cv::Vec3d>&);
     bool getTrajectoryInfo();
     bool getWrenchInfo();
+    
+    bool getPoseAndWrenchInput();
+    void getPoseAndWrenchInfo();
     
 };
 
