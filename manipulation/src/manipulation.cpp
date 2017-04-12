@@ -234,7 +234,7 @@ void Manipulation::getPoseAndWrenchInfo()
     }
     else
     {
-        std::string time = pose_input.get(0).asString();
+        double time = pose_input.get(0).asDouble();
         file_name_ << time;
         for(int i=1; i < pose_input.size(); i++)
         {
