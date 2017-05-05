@@ -1,0 +1,191 @@
+close all;
+clear all;
+clc;
+
+filename = '/home/yeshi/projects/manipulation_exp/manipulation/data/new1.txt';
+data = importdata(filename);
+
+time = data(:,1); %%Time received in seconds
+time = time - time(1,1); %%Corrected to zero
+
+%%NOTE angles are in quaternions
+left_pose = data(:,2:8);
+right_pose = data(:,9:15);
+
+left_wrench = data(:,16:21);
+right_wrench = data(:,22:27);
+
+dH_mes = left_wrench + right_wrench;
+figure; plot(dH_mes); title('Total External Wrench') 
+;;
+
+%%Computing quantities with respect to gazebo world
+
+%%Rigid Body Inertias
+%Body1
+m1 = 1; %Kgs
+I1_c = eye(3,3); %Inertia at CoM
+c1 = [0 -0.0125 0.55]; %CoM
+c1x = vec2skew(c1); % Cx
+
+I1 = [I1_c+m1*c1x*(c1x') m1*c1x;
+      m1*(c1x') m1*eye(3,3)];
+
+%Body2
+m2 = 1; %Kgs
+I2_c = eye(3,3); %Inertia at CoM
+c2 = [-0.1305 0.0425 0.55]; %CoM Half way from center to second handle link
+c2x = vec2skew(c2); % Cx
+
+I2 = [I2_c+m2*c2x*(c2x') m2*c2x;
+      m2*(c2x') m2*eye(3,3)];
+  
+
+  
+lin_left = left_pose(:,1:3);
+ang_left = left_pose(:,4:7);
+
+for i = 1:1:size(ang_left,1)
+    %Get  Homogeneous transformation
+    RotM_left(i).R = quaternion2rotm(ang_left(i,:));
+    world_T_left(i).H = [RotM_left(i).R,lin_left(i,:)'];
+    world_T_left(i).H = [world_T_left(i).H; 0 0 0 1];
+end
+
+
+lin_right = right_pose(:,1:3);
+ang_right = right_pose(:,4:7);
+
+for i = 1:1:size(ang_right,1)
+    %Get  Homogeneous transformation
+    RotM_right(i).R = quaternion2rotm(ang_right(i,:));
+    world_T_right(i).H = [RotM_right(i).R,lin_right(i,:)'];
+    world_T_right(i).H = [world_T_right(i).H; 0 0 0 1];
+end
+
+
+%%Computing relative transformation 1_T_2
+for i = 1:1:size(world_T_right,2)
+    T_12(i).H = inv(world_T_left(i).H)*(world_T_right(i).H);
+    RotM12(i).R = T_12(i).H(1:3,1:3);
+    lin12(i,:) = (T_12(i).H(1:3,4))';
+end
+
+%%Computing axis angle vector for revolute joint
+%%First three elements axis of rotation, last element angle of rotation -
+%%This gives the properties of the revolute joint
+%%TODO Check this with still data which should give constant axis angle
+%%The joint variable values are off - for 90 I measure 130, for distance
+%%0.3m I measure 0.7m
+%%values
+for i = 1:1:size(RotM12,2)
+    axisAngleVector12(i,:) = (vrrotmat2vec(RotM12(i).R))';
+    euler(i,:) = rotm2euler(RotM12(i).R);
+    distance = norm(lin12(i,:)');
+    axisDistanceVector12(i,:) = [lin12(1,:)/distance, distance];
+    
+    jointDistance(i,:) = axisDistanceVector12(i,4); %%This is in meters
+    jointAngle(i,:) = axisAngleVector12(i,4); %%This is in radians
+    jointAxis(i,:) = [axisDistanceVector12(i,1:3),axisAngleVector12(i,1:3)]; %This is joint axis form linear and angular parts 
+end
+
+%%Plotting Joint Variables
+figure(2); plot(jointAngle); title('Revolute Joint Angle');
+figure(1); plot(jointDistance); title('Prismatic Joint Distance');
+
+%%Joint variable first derivative
+dJointDistance = diff(jointDistance)./diff(time);
+dJointAngle = diff(jointAngle)./diff(time);
+
+%%Joint variable second derivative
+ddJointDistance = diff(dJointDistance)./diff(diff(time));
+ddJointAngle = diff(dJointAngle)./diff(diff(time));
+
+%%Left Linear velocity
+lin_vleft(:,1) = diff(lin_left(:,1))./diff(time);
+lin_vleft(:,2) = diff(lin_left(:,2))./diff(time);
+lin_vleft(:,3) = diff(lin_left(:,3))./diff(time);
+ 
+%%Angular velocity
+for i = 1:1:size(RotM_left,2)-1
+    dRotM_left(i).R = RotM_left(i+1).R-RotM_left(i).R; %%Computing differences
+    dRotM_left(i).R = dRotM_left(i).R/time(2,1); %%Component wise derivative
+    S_w_left(i).m = (dRotM_left(i).R).*(RotM_left(i).R');
+    ang_vleft(i,:) = skew2vec(S_w_left(i).m);
+end
+
+%%Left Linear Acceleration
+lin_aleft(:,1) = diff(lin_vleft(:,1))./diff(diff(time));
+lin_aleft(:,2) = diff(lin_vleft(:,2))./diff(diff(time));
+lin_aleft(:,3) = diff(lin_vleft(:,3))./diff(diff(time));
+
+%%Left Angular Acceleration
+ang_aleft(:,1) = diff(ang_vleft(:,1))./diff(diff(time));
+ang_aleft(:,2) = diff(ang_vleft(:,2))./diff(diff(time));
+ang_aleft(:,3) = diff(ang_vleft(:,3))./diff(diff(time));
+
+%6D Vectors
+V_left_mes = ([lin_vleft'; ang_vleft'])';
+A_left_mes = ([lin_aleft'; ang_aleft'])';
+
+%%Right Linear velocity
+lin_vright(:,1) = diff(lin_right(:,1))./diff(time);
+lin_vright(:,2) = diff(lin_right(:,2))./diff(time);
+lin_vright(:,3) = diff(lin_right(:,3))./diff(time);
+ 
+%%Angular velocity
+for i = 1:1:size(RotM_right,2)-1
+    dRotM_right(i).R = RotM_right(i+1).R-RotM_right(i).R; %%Computing differences
+    dRotM_right(i).R = dRotM_right(i).R/time(2,1); %%Component wise derivative
+    S_w_right(i).m = (dRotM_right(i).R).*(RotM_right(i).R');
+    ang_vright(i,:) = skew2vec(S_w_right(i).m);
+end
+
+%%Right Linear Acceleration
+lin_aright(:,1) = diff(lin_vright(:,1))./diff(diff(time));
+lin_aright(:,2) = diff(lin_vright(:,2))./diff(diff(time));
+lin_aright(:,3) = diff(lin_vright(:,3))./diff(diff(time));
+
+%%Right Angular Acceleration
+ang_aright(:,1) = diff(ang_vright(:,1))./diff(diff(time));
+ang_aright(:,2) = diff(ang_vright(:,2))./diff(diff(time));
+ang_aright(:,3) = diff(ang_vright(:,3))./diff(diff(time));
+
+%6D Vectors
+V_right_mes = ([lin_vright'; ang_vright'])'; %This is measured
+A_right_mes = ([lin_aright'; ang_aright'])';
+
+%%Computing velocities assuming a joint nature
+for i=1:1:size(jointAxis,1)-1 
+    R_V_right_computed(i,:) = V_left_mes(i,:) + [jointAxis(i+1,1:3)*0, jointAxis(i+1,4:6)*dJointAngle(i,1)]; %%Assuming Revolute joint
+    P_V_right_computed(i,:) = V_left_mes(i,:) + [jointAxis(i+1,1:3)*dJointDistance(i,1), jointAxis(i+1,4:6)*0]; %%Assuming Prismatic joint
+    
+    %%Computing s_dot = VxS
+    R_dJointAxis(i,:) = crm(R_V_right_computed(i,:))*(jointAxis(i+1,:)'); %%Something fishy here
+    P_dJointAxis(i,:) = crm(P_V_right_computed(i,:))*(jointAxis(i+1,:)');
+end
+
+%%Plotting Velocities
+figure; plot(V_right_mes); legend('d_x','d_y','d_z','d_{ox}','d_{oy}','d_{oz}'); title('Vel_{right measured}');
+figure; plot(R_V_right_computed); legend('d_x','d_y','d_z','d_{ox}','d_{oy}','d_{oz}'); title('Revolute Acc_{right computed}');
+figure; plot(P_V_right_computed); legend('d_x','d_y','d_z','d_{ox}','d_{oy}','d_{oz}'); title('Prismatic Acc_{right computed}');
+
+%%Computing accelerations assuming a joint nature
+for i=1:1:size(A_left_mes,1)
+    R_A_right_computed(i,:) = A_left_mes(i,:) + [R_dJointAxis(i+1,1:3)*0, R_dJointAxis(i+1,4:6)*dJointAngle(i,1)] + [jointAxis(i+1,1:3)*0, jointAxis(i+1,4:6)*ddJointAngle(i,1)];
+    P_A_right_computed(i,:) = A_left_mes(i,:) + [P_dJointAxis(i+1,1:3)*dJointDistance(i,1), R_dJointAxis(i+1,4:6)*0] + [jointAxis(i+1,1:3)*ddJointDistance(i,1), jointAxis(i+1,4:6)*0];
+    
+    R_dH(i,:) = I1*(R_A_right_computed(i,:)') + crf(R_V_right_computed(i+1,:))*I1*(R_V_right_computed(i+1,:)');
+    P_dH(i,:) = I1*(P_A_right_computed(i,:)') + crf(P_V_right_computed(i+1,:))*I1*(P_V_right_computed(i+1,:)');
+end
+
+%%Plotting Velocities
+figure; plot(A_right_mes); legend('d_x','d_y','d_z','d_{ox}','d_{oy}','d_{oz}'); title('Acc_{right measured}');
+figure; plot(R_A_right_computed); legend('d_x','d_y','d_z','d_{ox}','d_{oy}','d_{oz}'); title('Revolute Acc_{right computed}');
+figure; plot(P_A_right_computed); legend('d_x','d_y','d_z','d_{ox}','d_{oy}','d_{oz}'); title('Prismatic Acc_{right computed}');
+
+R = R_dH - dH_mes(3:end,:);
+P = P_dH - dH_mes(3:end,:);
+
+% % figure(1); plot(R); legend('d_x','d_y','d_z','d_{ox}','d_{oy}','d_{oz}');
+% % figure(2); plot(P); legend('d_x','d_y','d_z','d_{ox}','d_{oy}','d_{oz}');

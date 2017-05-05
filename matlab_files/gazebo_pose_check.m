@@ -36,6 +36,8 @@ for i = 1:1:size(world_T_right,2)
     T_12(i).H = inv(world_T_left(i).H)*(world_T_right(i).H);
     RotM12(i).R = T_12(i).H(1:3,1:3);
     lin12(i,:) = (T_12(i).H(1:3,4))';
+    
+    lin12(i,:) = (RotM12(i).R'*(lin12(i,:)'))';
 end
 
 %%Computing axis angle vector for revolute joint
