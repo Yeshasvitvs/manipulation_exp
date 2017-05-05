@@ -78,15 +78,15 @@ end
 
 %%Computing Body CoM
 for i=1:1:size(com_left,1)
-    body_com(i,:) = (m1*com_left(i,:)+m2*com_right(i,:))/(m1+m2);
+    com_body(i,:) = (m1*com_left(i,:)+m2*com_right(i,:))/(m1+m2);
     
-    c1 = body_com(i,:)-com_left(i,:); %difference in CoM
+    c1 = com_body(i,:)-com_left(i,:); %difference in CoM
     c1x = vec2skew(c1); % Cx
 
     I1(i).I = [m1*eye(3,3) m1*(c1x'); 
                m1*c1x I1_c+m1*c1x*(c1x');];
   
-    c2 = body_com(i,:)-com_right(i,:); %difference in CoM
+    c2 = com_body(i,:)-com_right(i,:); %difference in CoM
     c2x = vec2skew(c2); % Cx
 
     I2(i).I = [m2*eye(3,3) m2*(c2x'); 
@@ -207,6 +207,9 @@ for i=1:1:size(A_left_mes,1)
     R_A_right_computed(i,:) = A_left_mes(i,:) + R_dJointAxis(i+1,:)*dJointAngle(i,1) + R_jointAxis(i+1,:)*ddJointAngle(i,1);
     P_A_right_computed(i,:) = A_left_mes(i,:) + P_dJointAxis(i+1,:)*dJointDistance(i,1) + P_jointAxis(i+1,:)*ddJointDistance(i,1);
     
+    R_check(i,:) = crf(R_V_right_computed(i+1,:))*I2(i+1).I*(R_V_right_computed(i+1,:)');
+    P_check(i,:) = crf(P_V_right_computed(i+1,:))*I2(i+1).I*(P_V_right_computed(i+1,:)');
+    
     R_dH(i,:) = I1(i+2).I*(A_left_mes(i,:)') + crf(V_left_mes(i,:))*I1(i+1).I*(V_left_mes(i,:)') + I2(i+2).I*(R_A_right_computed(i,:)') + crf(R_V_right_computed(i+1,:))*I2(i+1).I*(R_V_right_computed(i+1,:)');
     P_dH(i,:) = I1(i+2).I*(A_left_mes(i,:)') + crf(V_left_mes(i,:))*I1(i+1).I*(V_left_mes(i,:)') + I2(i+2).I*(P_A_right_computed(i,:)') + crf(P_V_right_computed(i+1,:))*I2(i+1).I*(P_V_right_computed(i+1,:)');
 end
@@ -236,10 +239,12 @@ dH_mes_abs = world_ft_left + world_ft_right;
 R = R_dH - dH_mes_abs;
 P = P_dH - dH_mes_abs;
 
-% % %%Plotting Right CoM
+% % %%Plotting Link and Body CoM
 % % figure;
-% % subplot(2,1,1); plot(lin_right); legend('x','y','z');title('Right Link Position')
-% % subplot(2,1,2); plot(com_right); legend('x','y','z');title('Right Link CoM')
+% % com_plt1 = subplot(3,1,1); plot(com_left); legend('x','y','z');title('Left Link CoM');
+% % com_plt2 = subplot(3,1,2); plot(com_right); legend('x','y','z');title('Right Link CoM');
+% % com_plt3 = subplot(3,1,3); plot(com_body); legend('x','y','z');title('Body CoM');
+% % % % linkaxes([com_plt1 com_plt2 com_plt3],'xy');
 
 
 % % %%Plotting Joint Variables
@@ -303,7 +308,7 @@ PH_plt = subplot(2,1,2); plot(time,P_dH); legend('d_x','d_y','d_z','d_{ox}','d_{
 
 %%Plotting Joint Hypothesis
 figure;
-R_plt1 = subplot(2,1,1); plot(time,abs(R)); legend('d_x','d_y','d_z','d_{ox}','d_{oy}','d_{oz}'); title('Revolute Hypothesis');
-P_plt2 = subplot(2,1,2); plot(time,abs(P)); legend('d_x','d_y','d_z','d_{ox}','d_{oy}','d_{oz}'); title('Prismatic Hypothesis');
+R_plt1 = subplot(2,1,1); plot(time,R); legend('d_x','d_y','d_z','d_{ox}','d_{oy}','d_{oz}'); title('Revolute Hypothesis');
+P_plt2 = subplot(2,1,2); plot(time,P); legend('d_x','d_y','d_z','d_{ox}','d_{oy}','d_{oz}'); title('Prismatic Hypothesis');
 % % plt3 = subplot(3,1,3); plot(time,R-P); legend('d_x','d_y','d_z','d_{ox}','d_{oy}','d_{oz}'); title('Difference in Hypothesis');
 linkaxes([R_plt1 P_plt2],'xy')
