@@ -121,20 +121,50 @@ for i = 1:1:size(RotM12,2)
 
 end
 
+% % %%Testing SGolay filtering
+% % order = 7;
+% % framelen = 71;
+% % [sgFilter,G] = SgolayWrapper(order,framelen);
+% % jointDistance_center = conv(jointDistance,sgFilter((framelen+1)/2,:),'valid');
+% % jointDistance_begin = sgFilter(end:-1:(framelen+3)/2,:) * lin_body2(framelen:-1:1)';
+% % jointDistance_end = sgFilter((framelen-1)/2:-1:1,:) * lin_body2(end:-1:end-(framelen-1))';
+% % jointDistance = [jointDistance_begin; jointDistance_center; jointDistance_end];
+% % % % figure;
+% % % % a1=subplot(2,1,1); plot(lin_body2(:,2)); title('Prismatic Joint Distance Original');
+% % % % a2=subplot(2,1,2); plot(pose); title('Prismatic Joint Distance Smoothed');
+% % % % linkaxes([a1 a2],'xy');
+% % 
+% % % % [da,dda]=SgolayDerivation(order,framelen,lin_body2(:,2),0.01);
+% % [da,dda]=SgolayDerivation(order,framelen,jointDistance,0.01);
+% % % % figure;
+% % % % pa1=subplot(3,1,1); plot(pose,'.'); title('Prismatic Joint Distance');
+% % % % pa2=subplot(3,1,2); plot(da,'.'); title('Prismatic Joint Velocity');
+% % % % pa3=subplot(3,1,3); plot(dda,'.'); title('Prismatic Joint Acceleration');
+% % % % linkaxes([pa3 pa2 pa3],'xy');
+
 dtime = diff(time);
 %%Joint variable first derivative
 dJointDistance = diff(jointDistance)./dtime;
 dJointAngle = diff(jointAngle)./dtime;
 
-ddtime = diff(time(2:end));
+%%Adding padding zeros
+dJointDistance = [0;dJointDistance];
+dJointAngle = [0;dJointAngle];
+
+% % ddtime = diff(time(2:end));
 %%Joint variable second derivative
-ddJointDistance = diff(dJointDistance)./ddtime;
-ddJointAngle = diff(dJointAngle)./ddtime;
+ddJointDistance = diff(dJointDistance)./dtime;
+ddJointAngle = diff(dJointAngle)./dtime;
+
+%%Adding padding zeros
+ddJointDistance = [0;ddJointDistance];
+ddJointAngle = [0;ddJointAngle];
 
 %%Body1 Linear velocity
 lin_vel_body1(:,1) = diff(lin_body1(:,1))./dtime;
 lin_vel_body1(:,2) = diff(lin_body1(:,2))./dtime;
 lin_vel_body1(:,3) = diff(lin_body1(:,3))./dtime;
+
 
 %%Body1 Angular velocity
 for i = 1:1:size(RotM_body1,2)-1
@@ -144,15 +174,25 @@ for i = 1:1:size(RotM_body1,2)-1
     ang_vel_body1(i,:) = skew2vec(s_w_body1(i).m);
 end
 
+%%Adding padding zeros
+lin_vel_body1 = [0,0,0;lin_vel_body1];
+ang_vel_body1 = [0,0,0;ang_vel_body1];
+
+
 %%Body1 Linear Acceleration
-lin_acc_body1(:,1) = diff(lin_vel_body1(:,1))./ddtime;
-lin_acc_body1(:,2) = diff(lin_vel_body1(:,2))./ddtime;
-lin_acc_body1(:,3) = diff(lin_vel_body1(:,3))./ddtime;
+lin_acc_body1(:,1) = diff(lin_vel_body1(:,1))./dtime;
+lin_acc_body1(:,2) = diff(lin_vel_body1(:,2))./dtime;
+lin_acc_body1(:,3) = diff(lin_vel_body1(:,3))./dtime;
+
 
 %%Body1 Angular Acceleration
-ang_acc_body1(:,1) = diff(ang_vel_body1(:,1))./ddtime;
-ang_acc_body1(:,2) = diff(ang_vel_body1(:,2))./ddtime;
-ang_acc_body1(:,3) = diff(ang_vel_body1(:,3))./ddtime;
+ang_acc_body1(:,1) = diff(ang_vel_body1(:,1))./dtime;
+ang_acc_body1(:,2) = diff(ang_vel_body1(:,2))./dtime;
+ang_acc_body1(:,3) = diff(ang_vel_body1(:,3))./dtime;
+
+%%Adding padding zeros
+lin_acc_body1 = [0,0,0;lin_acc_body1];
+ang_acc_body1 = [0,0,0;ang_acc_body1];
 
 %6D Vectors
 measured_vel_body1 = ([lin_vel_body1'; ang_vel_body1'])';
@@ -171,15 +211,23 @@ for i = 1:1:size(RotM_body2,2)-1
     ang_vel_body2(i,:) = skew2vec(s_w_body2(i).m);
 end
 
+%%Adding padding zeros
+lin_vel_body2 = [0,0,0;lin_vel_body2];
+ang_vel_body2 = [0,0,0;ang_vel_body2];
+
 %%Body2 Linear Acceleration
-lin_acc_body2(:,1) = diff(lin_vel_body2(:,1))./ddtime;
-lin_acc_body2(:,2) = diff(lin_vel_body2(:,2))./ddtime;
-lin_acc_body2(:,3) = diff(lin_vel_body2(:,3))./ddtime;
+lin_acc_body2(:,1) = diff(lin_vel_body2(:,1))./dtime;
+lin_acc_body2(:,2) = diff(lin_vel_body2(:,2))./dtime;
+lin_acc_body2(:,3) = diff(lin_vel_body2(:,3))./dtime;
 
 %%Body2 Angular Acceleration
-ang_acc_body2(:,1) = diff(ang_vel_body2(:,1))./ddtime;
-ang_acc_body2(:,2) = diff(ang_vel_body2(:,2))./ddtime;
-ang_acc_body2(:,3) = diff(ang_vel_body2(:,3))./ddtime;
+ang_acc_body2(:,1) = diff(ang_vel_body2(:,1))./dtime;
+ang_acc_body2(:,2) = diff(ang_vel_body2(:,2))./dtime;
+ang_acc_body2(:,3) = diff(ang_vel_body2(:,3))./dtime;
+
+%%Adding padding zeros
+lin_acc_body2 = [0,0,0;lin_acc_body2];
+ang_acc_body2 = [0,0,0;ang_acc_body2];
 
 %6D Vectors
 measured_vel_body2 = ([lin_vel_body2'; ang_vel_body2'])'; %This is measured
@@ -195,33 +243,38 @@ for i=1:1:size(R_jointAxis,1)-1
     P_dJointAxis(i,:) = crm(P_vel_body2_computed(i,:))*(P_jointAxis(i+1,:)');
 end
 
+%%Adding padding zeros
+R_vel_body2_computed = [0,0,0,0,0,0;R_vel_body2_computed];
+P_vel_body2_computed = [0,0,0,0,0,0;P_vel_body2_computed];
+
+R_dJointAxis = [0,0,0,0,0,0;R_dJointAxis];
+P_dJointAxis = [0,0,0,0,0,0;P_dJointAxis];
 
 %%Computing accelerations assuming a joint nature
 for i=1:1:size(measured_acc_body1,1)
-    R_acc_body2_computed(i,:) = measured_acc_body1(i,:) + R_dJointAxis(i+1,:)*dJointAngle(i,1) + R_jointAxis(i+1,:)*ddJointAngle(i,1);
-    P_acc_body2_computed(i,:) = measured_acc_body1(i,:) + P_dJointAxis(i+1,:)*dJointDistance(i,1) + P_jointAxis(i+1,:)*ddJointDistance(i,1);
-    
-    R_momentum_change(i,:) = I1(i+2).I*(measured_acc_body1(i,:)') + crf(measured_vel_body1(i,:))*I1(i+1).I*(measured_vel_body1(i,:)') + I2(i+2).I*(R_acc_body2_computed(i,:)') + crf(R_vel_body2_computed(i+1,:))*I2(i+1).I*(R_vel_body2_computed(i+1,:)');
-    P_momentum_change(i,:) = I1(i+2).I*(measured_acc_body1(i,:)') + crf(measured_vel_body1(i,:))*I1(i+1).I*(measured_vel_body1(i,:)') + I2(i+2).I*(P_acc_body2_computed(i,:)') + crf(P_vel_body2_computed(i+1,:))*I2(i+1).I*(P_vel_body2_computed(i+1,:)');
+    R_acc_body2_computed(i,:) = measured_acc_body1(i,:) + R_dJointAxis(i,:)*dJointAngle(i,1) + R_jointAxis(i,:)*ddJointAngle(i,1);
+    P_acc_body2_computed(i,:) = measured_acc_body1(i,:) + P_dJointAxis(i,:)*dJointDistance(i,1) + P_jointAxis(i,:)*ddJointDistance(i,1);
+end
+
+for i=1:1:size(R_acc_body2_computed,1)
+    R_momentum_change(i,:) = I1(i).I*(measured_acc_body1(i,:)') + crf(measured_vel_body1(i,:))*I1(i).I*(measured_vel_body1(i,:)') + I2(i).I*(R_acc_body2_computed(i,:)') + crf(R_vel_body2_computed(i,:))*I2(i).I*(R_vel_body2_computed(i,:)');
+    P_momentum_change(i,:) = I1(i).I*(measured_acc_body1(i,:)') + crf(measured_vel_body1(i,:))*I1(i).I*(measured_vel_body1(i,:)') + I2(i).I*(P_acc_body2_computed(i,:)') + crf(P_vel_body2_computed(i,:))*I2(i).I*(P_vel_body2_computed(i,:)');
 end
 
 %%Adding padding zeros
-dJointDistance = [0;dJointDistance];
-dJointAngle = [0;dJointAngle];
-
-ddJointDistance = [0;0;ddJointDistance];
-ddJointAngle = [0;0;ddJointAngle];
-
-measured_vel_body2 = [0, 0, 0, 0, 0, 0; measured_vel_body2];
-R_vel_body2_computed = [0, 0, 0, 0, 0, 0; R_vel_body2_computed];
-P_vel_body2_computed = [0, 0, 0, 0, 0, 0; P_vel_body2_computed];
-
-measured_acc_body2 =   [0, 0, 0, 0, 0, 0; 0, 0, 0, 0, 0, 0; measured_acc_body2];
-R_acc_body2_computed = [0, 0, 0, 0, 0, 0; 0, 0, 0, 0, 0, 0; R_acc_body2_computed];
-P_acc_body2_computed = [0, 0, 0, 0, 0, 0; 0, 0, 0, 0, 0, 0; P_acc_body2_computed];
-
-R_momentum_change = [0, 0, 0, 0, 0, 0; 0, 0, 0, 0, 0, 0;R_momentum_change];
-P_momentum_change = [0, 0, 0, 0, 0, 0; 0, 0, 0, 0, 0, 0;P_momentum_change];
+% % dJointDistance = [0;dJointDistance];
+% % dJointAngle = [0;dJointAngle];
+% % 
+% % measured_vel_body2 = [0, 0, 0, 0, 0, 0; measured_vel_body2];
+% % R_vel_body2_computed = [0, 0, 0, 0, 0, 0; R_vel_body2_computed];
+% % P_vel_body2_computed = [0, 0, 0, 0, 0, 0; P_vel_body2_computed];
+% % 
+% % measured_acc_body2 =   [0, 0, 0, 0, 0, 0; 0, 0, 0, 0, 0, 0; measured_acc_body2];
+% % R_acc_body2_computed = [0, 0, 0, 0, 0, 0; 0, 0, 0, 0, 0, 0; R_acc_body2_computed];
+% % P_acc_body2_computed = [0, 0, 0, 0, 0, 0; 0, 0, 0, 0, 0, 0; P_acc_body2_computed];
+% % 
+% % R_momentum_change = [0, 0, 0, 0, 0, 0; 0, 0, 0, 0, 0, 0;R_momentum_change];
+% % P_momentum_change = [0, 0, 0, 0, 0, 0; 0, 0, 0, 0, 0, 0;P_momentum_change];
 
 %%Total wrench with respect to the world
 measured_wrench_abs = world_left_wrench + world_right_wrench;
@@ -253,7 +306,7 @@ Pjoint_plt3 = subplot(3,1,3); plot(time,ddJointDistance); title('Prismatic Joint
 figure;
 R_axis_plt = subplot(2,1,1); plot(time,R_jointAxis); legend('d_x','d_y','d_z','d_{ox}','d_{oy}','d_{oz}'); title('Revolute Joint Axis');
 P_axis_plt = subplot(2,1,2); plot(time,P_jointAxis); legend('d_x','d_y','d_z','d_{ox}','d_{oy}','d_{oz}'); title('Prismatic Joint Axis');
-linkaxes([R_axis_plt P_axis_plt],'xy')
+% % linkaxes([R_axis_plt P_axis_plt],'xy')
 
 % % R_dJointAxis = [0,0,0,0,0,0;R_dJointAxis];
 % % P_dJointAxis = [0,0,0,0,0,0;P_dJointAxis];
@@ -263,19 +316,19 @@ linkaxes([R_axis_plt P_axis_plt],'xy')
 % % dP_plt = subplot(2,1,2); plot(time,P_dJointAxis); legend('d_x','d_y','d_z','d_{ox}','d_{oy}','d_{oz}'); title('Prismatic Axis Derivative')
 % % linkaxes([dR_plt dP_plt],'xy')
 
-%%Plotting Velocities
-figure;
-V_plt1 = subplot(3,1,1); plot(time,measured_vel_body2); legend('d_x','d_y','d_z','d_{ox}','d_{oy}','d_{oz}'); title('Body2 velocity measured');
-V_plt2 = subplot(3,1,2); plot(time,R_vel_body2_computed); legend('d_x','d_y','d_z','d_{ox}','d_{oy}','d_{oz}'); title('Revolute - Body2 velocity computed');
-V_plt3 = subplot(3,1,3); plot(time,P_vel_body2_computed); legend('d_x','d_y','d_z','d_{ox}','d_{oy}','d_{oz}'); title('Prismatic - Body2 velocity computed');
-linkaxes([V_plt1 V_plt2 V_plt3],'xy')
-
-% % %%Plotting Accelerations
-figure;
-A_plt1 = subplot(3,1,1); plot(time,measured_acc_body2); legend('d_x','d_y','d_z','d_{ox}','d_{oy}','d_{oz}'); title('Body2 acceleration measured');
-A_plt2 = subplot(3,1,2); plot(time,R_acc_body2_computed); legend('d_x','d_y','d_z','d_{ox}','d_{oy}','d_{oz}'); title('Revolute - Body2 acceleration computed');
-A_plt3 = subplot(3,1,3); plot(time,P_acc_body2_computed); legend('d_x','d_y','d_z','d_{ox}','d_{oy}','d_{oz}'); title('Prismatic - Body2 acceleration computed');
-linkaxes([A_plt1 A_plt2 A_plt3],'xy')
+% % %%Plotting Velocities
+% % figure;
+% % V_plt1 = subplot(3,1,1); plot(time,measured_vel_body2); legend('d_x','d_y','d_z','d_{ox}','d_{oy}','d_{oz}'); title('Body2 velocity measured');
+% % V_plt2 = subplot(3,1,2); plot(time,R_vel_body2_computed); legend('d_x','d_y','d_z','d_{ox}','d_{oy}','d_{oz}'); title('Revolute - Body2 velocity computed');
+% % V_plt3 = subplot(3,1,3); plot(time,P_vel_body2_computed); legend('d_x','d_y','d_z','d_{ox}','d_{oy}','d_{oz}'); title('Prismatic - Body2 velocity computed');
+% % linkaxes([V_plt1 V_plt2 V_plt3],'xy')
+% % 
+% % % % %%Plotting Accelerations
+% % figure;
+% % A_plt1 = subplot(3,1,1); plot(time,measured_acc_body2); legend('d_x','d_y','d_z','d_{ox}','d_{oy}','d_{oz}'); title('Body2 acceleration measured');
+% % A_plt2 = subplot(3,1,2); plot(time,R_acc_body2_computed); legend('d_x','d_y','d_z','d_{ox}','d_{oy}','d_{oz}'); title('Revolute - Body2 acceleration computed');
+% % A_plt3 = subplot(3,1,3); plot(time,P_acc_body2_computed); legend('d_x','d_y','d_z','d_{ox}','d_{oy}','d_{oz}'); title('Prismatic - Body2 acceleration computed');
+% % linkaxes([A_plt1 A_plt2 A_plt3],'xy')
 
 % % %%Plotting External Wrench - Local Frames 
 % % figure; 
@@ -283,22 +336,22 @@ linkaxes([A_plt1 A_plt2 A_plt3],'xy')
 % % subplot(3,1,2); plot(time,right_wrench); legend('e_{ox}','e_{oy}','e_{oz}','e_x','e_y','e_z'); title('Right Wrench_{local}');
 % % subplot(3,1,3); plot(time,measured_wrench_local); legend('e_{ox}','e_{oy}','e_{oz}','e_x','e_y','e_z'); title('Total Wrench_{local}');
 
-%%Plotting External Wrench - wrt Inertial Frame
-figure; 
-w_plt1 = subplot(3,1,1); plot(time,world_left_wrench); legend('e_{ox}','e_{oy}','e_{oz}','e_x','e_y','e_z'); title('Left Wrench_{world}');
-w_plt2 = subplot(3,1,2); plot(time,world_right_wrench); legend('e_{ox}','e_{oy}','e_{oz}','e_x','e_y','e_z'); title('Right Wrench_{world}');
-w_plt3 = subplot(3,1,3); plot(time,measured_wrench_abs); legend('e_{ox}','e_{oy}','e_{oz}','e_x','e_y','e_z'); title('Total Wrench_{world}');
-linkaxes([w_plt1 w_plt2 w_plt3],'xy')
-
-%%Plotting Joint Hypothesis RoM
-figure; 
-RH_plt = subplot(2,1,1); plot(time,R_momentum_change); legend('d_x','d_y','d_z','d_{ox}','d_{oy}','d_{oz}'); title('Revolute Hypothesis - Rate of Change in Momentum');
-PH_plt = subplot(2,1,2); plot(time,P_momentum_change); legend('d_x','d_y','d_z','d_{ox}','d_{oy}','d_{oz}'); title('Prismatic Hypothesis - Rate of Change in Momentum');
-% % linkaxes([RH_plt PH_plt],'xy')
+% % %%Plotting External Wrench - wrt Inertial Frame
+% % figure; 
+% % w_plt1 = subplot(3,1,1); plot(time,world_left_wrench); legend('e_{ox}','e_{oy}','e_{oz}','e_x','e_y','e_z'); title('Left Wrench_{world}');
+% % w_plt2 = subplot(3,1,2); plot(time,world_right_wrench); legend('e_{ox}','e_{oy}','e_{oz}','e_x','e_y','e_z'); title('Right Wrench_{world}');
+% % w_plt3 = subplot(3,1,3); plot(time,measured_wrench_abs); legend('e_{ox}','e_{oy}','e_{oz}','e_x','e_y','e_z'); title('Total Wrench_{world}');
+% % linkaxes([w_plt1 w_plt2 w_plt3],'xy')
+% % 
+% % %%Plotting Joint Hypothesis RoM
+% % figure; 
+% % RH_plt = subplot(2,1,1); plot(time,R_momentum_change); legend('d_x','d_y','d_z','d_{ox}','d_{oy}','d_{oz}'); title('Revolute Hypothesis - Rate of Change in Momentum');
+% % PH_plt = subplot(2,1,2); plot(time,P_momentum_change); legend('d_x','d_y','d_z','d_{ox}','d_{oy}','d_{oz}'); title('Prismatic Hypothesis - Rate of Change in Momentum');
+% % % % linkaxes([RH_plt PH_plt],'xy')
 
 %%Plotting Joint Hypothesis
 figure;
 R_plt1 = subplot(2,1,1); plot(time,R); legend('d_x','d_y','d_z','d_{ox}','d_{oy}','d_{oz}'); title('Revolute Hypothesis');
 P_plt2 = subplot(2,1,2); plot(time,P); legend('d_x','d_y','d_z','d_{ox}','d_{oy}','d_{oz}'); title('Prismatic Hypothesis');
 % % plt3 = subplot(3,1,3); plot(time,R-P); legend('d_x','d_y','d_z','d_{ox}','d_{oy}','d_{oz}'); title('Difference in Hypothesis');
-linkaxes([R_plt1 P_plt2],'xy')
+% linkaxes([R_plt1 P_plt2],'xy')
