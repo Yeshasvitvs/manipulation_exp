@@ -202,8 +202,8 @@ for i=1:1:size(R_jointAxis,1)-1
     P_vel_body2_computed(i,:) = measured_vel_body1(i,:) + P_jointAxis(i,:)*dJointDistance(i,1); %%Assuming Prismatic joint
     
     %%Computing the momentum
-    R_momentum(i,:) = I2(i+1).I*R_vel_body2_computed(i,:)';
-    P_momentum(i,:) = I2(i+1).I*P_vel_body2_computed(i,:)';
+    R_momentum(i,:) = I1(i+1).I*measured_vel_body1(i,:)' + I2(i+1).I*R_vel_body2_computed(i,:)';
+    P_momentum(i,:) = I1(i+1).I*measured_vel_body1(i,:)' + I2(i+1).I*P_vel_body2_computed(i,:)';
     
     
     %%Computing s_dot = VxS - these values are near zeros
