@@ -21,9 +21,9 @@ measured_wrench_local = left_wrench + right_wrench;
 % % figure; plot(time,measured_wrench_local); legend('d_x','d_y','d_z','d_{ox}','d_{oy}','d_{oz}'); title('Total External Wrench - Local Frame'); 
 % % % % %%Plotting External Wrench - Local Frames 
 % % % % figure; 
-% % % % subplot(3,1,1); plot(time,left_wrench); legend('e_{ox}','e_{oy}','e_{oz}','e_x','e_y','e_z'); title('Left Wrench_{local}');
-% % % % subplot(3,1,2); plot(time,right_wrench); legend('e_{ox}','e_{oy}','e_{oz}','e_x','e_y','e_z'); title('Right Wrench_{local}');
-% % % % subplot(3,1,3); plot(time,measured_wrench_local); legend('e_{ox}','e_{oy}','e_{oz}','e_x','e_y','e_z'); title('Total Wrench_{local}');
+% % % % subplot(3,1,1); plot(time,left_wrench); legend('e_{ox}','e_{oy}','e_{oz}','e_x','e_y','e_z'); title('Left Wrench_{local}'); xlabel('sec'); ylabel('N - Nm');
+% % % % subplot(3,1,2); plot(time,right_wrench); legend('e_{ox}','e_{oy}','e_{oz}','e_x','e_y','e_z'); title('Right Wrench_{local}'); ylabel('N - Nm');
+% % % % subplot(3,1,3); plot(time,measured_wrench_local); legend('e_{ox}','e_{oy}','e_{oz}','e_x','e_y','e_z'); title('Total Wrench_{local}'); ylabel('N - Nm');
 
 %%Inertial frame is gazebo world
 %%Rigid Body Properties
@@ -84,7 +84,7 @@ end
 %%Computing Body CoM
 for i=1:1:size(body1_com,1)
     body_com(i,:) = (m1*body1_com(i,:)+m2*body2_com(i,:))/(m1+m2);
-    
+    body_com(i,:) = [0,0,0]; %%This is the setting origin of the world
     c1 = body_com(i,:)-body1_com(i,:); %difference in CoM
     c1x = vec2skew(c1); % Cx
 
@@ -263,76 +263,76 @@ P_diff = measured_wrench_abs - P_momentum_change_computed_diff;
 R_comp = measured_wrench_abs - R_momentum_change_computed;
 P_comp = measured_wrench_abs - P_momentum_change_computed;
 
-% % %%Plotting Link and Body CoM
-% % figure;
-% % com_plt1 = subplot(3,1,1); plot(body1_com); legend('x','y','z');title('Left Link CoM');
-% % com_plt2 = subplot(3,1,2); plot(body2_com); legend('x','y','z');title('Right Link CoM');
-% % com_plt3 = subplot(3,1,3); plot(body_com); legend('x','y','z');title('Body CoM');
-% % % % linkaxes([com_plt1 com_plt2 com_plt3],'xy');
-% % 
-% % %%Plotting Joint Variables
-% % figure; 
-% % Rjoint_plt1 = subplot(3,1,1); plot(time,jointAngle); title('Revolute Joint Angle');
-% % Rjoint_plt2 = subplot(3,1,2); plot(time,dJointAngle); title('Revolute Joint Vel');
-% % Rjoint_plt3 = subplot(3,1,3); plot(time,ddJointAngle); title('Revolute Joint Acc');
-% % % % linkaxes([Rjoint_plt1 Rjoint_plt2 Rjoint_plt3],'xy')
-% % 
-% % figure;
-% % Pjoint_plt1 = subplot(3,1,1); plot(time,jointDistance); title('Prismatic Joint Distance');
-% % Pjoint_plt2 = subplot(3,1,2); plot(time,dJointDistance); title('Prismatic Joint Vel');
-% % Pjoint_plt3 = subplot(3,1,3); plot(time,ddJointDistance); title('Prismatic Joint Acc');
-% % % % linkaxes([Pjoint_plt1 Pjoint_plt2 Pjoint_plt3],'xy')
-% % 
-% % figure;
-% % R_axis_plt = subplot(2,1,1); plot(time,R_jointAxis); legend('d_x','d_y','d_z','d_{ox}','d_{oy}','d_{oz}'); title('Revolute Joint Axis');
-% % P_axis_plt = subplot(2,1,2); plot(time,P_jointAxis); legend('d_x','d_y','d_z','d_{ox}','d_{oy}','d_{oz}'); title('Prismatic Joint Axis');
-% % linkaxes([R_axis_plt P_axis_plt],'xy')
+%%Plotting Link and Body CoM
+figure;
+com_plt1 = subplot(3,1,1); plot(body1_com); legend('x','y','z');title('Left Link CoM'); xlabel('sec'); ylabel('meters');
+com_plt2 = subplot(3,1,2); plot(body2_com); legend('x','y','z');title('Right Link CoM'); xlabel('sec'); ylabel('meters');
+com_plt3 = subplot(3,1,3); plot(body_com); legend('x','y','z');title('Body CoM'); xlabel('sec'); ylabel('meters');
+% % linkaxes([com_plt1 com_plt2 com_plt3],'xy');
 
-% % figure;
-% % dR_plt = subplot(2,1,1); plot(time,R_dJointAxis); legend('d_x','d_y','d_z','d_{ox}','d_{oy}','d_{oz}'); title('Revolute Axis Derivative');
-% % dP_plt = subplot(2,1,2); plot(time,P_dJointAxis); legend('d_x','d_y','d_z','d_{ox}','d_{oy}','d_{oz}'); title('Prismatic Axis Derivative')
-% % linkaxes([dR_plt dP_plt],'xy')
+%%Plotting Joint Variables
+figure; 
+Rjoint_plt1 = subplot(3,1,1); plot(time,jointAngle); title('Revolute Joint Angle'); xlabel('sec'); ylabel('rad');
+Rjoint_plt2 = subplot(3,1,2); plot(time,dJointAngle); title('Revolute Joint Vel'); xlabel('sec'); ylabel('rad/s');
+Rjoint_plt3 = subplot(3,1,3); plot(time,ddJointAngle); title('Revolute Joint Acc'); xlabel('sec'); ylabel('rad/s^2');
+% % linkaxes([Rjoint_plt1 Rjoint_plt2 Rjoint_plt3],'xy')
+
+figure;
+Pjoint_plt1 = subplot(3,1,1); plot(time,jointDistance); title('Prismatic Joint Distance'); xlabel('sec');  ylabel('meters');
+Pjoint_plt2 = subplot(3,1,2); plot(time,dJointDistance); title('Prismatic Joint Vel'); xlabel('sec');  ylabel('m/s');
+Pjoint_plt3 = subplot(3,1,3); plot(time,ddJointDistance); title('Prismatic Joint Acc'); xlabel('sec');  ylabel('m/s^2');
+% % linkaxes([Pjoint_plt1 Pjoint_plt2 Pjoint_plt3],'xy')
+
+figure;
+R_axis_plt = subplot(2,1,1); plot(time,R_jointAxis); legend('d_x','d_y','d_z','d_{ox}','d_{oy}','d_{oz}'); title('Revolute Joint Axis'); xlabel('sec');
+P_axis_plt = subplot(2,1,2); plot(time,P_jointAxis); legend('d_x','d_y','d_z','d_{ox}','d_{oy}','d_{oz}'); title('Prismatic Joint Axis'); xlabel('sec');
+linkaxes([R_axis_plt P_axis_plt],'xy')
+
+figure;
+dR_plt = subplot(2,1,1); plot(time,R_dJointAxis); legend('d_x','d_y','d_z','d_{ox}','d_{oy}','d_{oz}'); title('Revolute Axis Derivative'); xlabel('sec');
+dP_plt = subplot(2,1,2); plot(time,P_dJointAxis); legend('d_x','d_y','d_z','d_{ox}','d_{oy}','d_{oz}'); title('Prismatic Axis Derivative'); xlabel('sec');
+linkaxes([dR_plt dP_plt],'xy')
 
 %%Plotting Momentum
-% % figure;
-% % momR_plt = subplot(2,1,1); plot(time,R_momentum_change_computed_diff); legend('d_x','d_y','d_z','d_{ox}','d_{oy}','d_{oz}'); title('Revolute RoM using diff');
-% % momP_plt = subplot(2,1,2); plot(time,P_momentum_change_computed_diff); legend('d_x','d_y','d_z','d_{ox}','d_{oy}','d_{oz}'); title('Prismatic RoM using diff')
-% % % linkaxes([momR_plt momP_plt],'xy')
+figure;
+momR_plt = subplot(2,1,1); plot(time,R_momentum_change_computed_diff); legend('d_x','d_y','d_z','d_{ox}','d_{oy}','d_{oz}'); title('Revolute RoM using diff'); xlabel('sec');
+momP_plt = subplot(2,1,2); plot(time,P_momentum_change_computed_diff); legend('d_x','d_y','d_z','d_{ox}','d_{oy}','d_{oz}'); title('Prismatic RoM using diff'); xlabel('sec');
+% linkaxes([momR_plt momP_plt],'xy')
 
-% % %%Plotting Velocities
-% % figure;
-% % V_plt1 = subplot(3,1,1); plot(time,measured_vel_body2); legend('d_x','d_y','d_z','d_{ox}','d_{oy}','d_{oz}'); title('Body2 velocity measured');
-% % V_plt2 = subplot(3,1,2); plot(time,R_vel_body2_computed); legend('d_x','d_y','d_z','d_{ox}','d_{oy}','d_{oz}'); title('Revolute - Body2 velocity computed');
-% % V_plt3 = subplot(3,1,3); plot(time,P_vel_body2_computed); legend('d_x','d_y','d_z','d_{ox}','d_{oy}','d_{oz}'); title('Prismatic - Body2 velocity computed');
-% % linkaxes([V_plt1 V_plt2 V_plt3],'xy')
-% % 
-% % % % %%Plotting Accelerations
-% % figure;
-% % A_plt1 = subplot(3,1,1); plot(time,measured_acc_body2); legend('d_x','d_y','d_z','d_{ox}','d_{oy}','d_{oz}'); title('Body2 acceleration measured');
-% % A_plt2 = subplot(3,1,2); plot(time,R_acc_body2_computed); legend('d_x','d_y','d_z','d_{ox}','d_{oy}','d_{oz}'); title('Revolute - Body2 acceleration computed');
-% % A_plt3 = subplot(3,1,3); plot(time,P_acc_body2_computed); legend('d_x','d_y','d_z','d_{ox}','d_{oy}','d_{oz}'); title('Prismatic - Body2 acceleration computed');
-% % linkaxes([A_plt1 A_plt2 A_plt3],'xy')
+%%Plotting Velocities
+figure;
+V_plt1 = subplot(3,1,1); plot(time,measured_vel_body2); legend('d_x','d_y','d_z','d_{ox}','d_{oy}','d_{oz}'); title('Body2 velocity measured'); xlabel('sec'); ylabel('m/s-rad/s');
+V_plt2 = subplot(3,1,2); plot(time,R_vel_body2_computed); legend('d_x','d_y','d_z','d_{ox}','d_{oy}','d_{oz}'); title('Revolute - Body2 velocity computed'); xlabel('sec'); ylabel('m/s-rad/s');
+V_plt3 = subplot(3,1,3); plot(time,P_vel_body2_computed); legend('d_x','d_y','d_z','d_{ox}','d_{oy}','d_{oz}'); title('Prismatic - Body2 velocity computed'); xlabel('sec'); ylabel('m/s-rad/s');
+linkaxes([V_plt1 V_plt2 V_plt3],'xy')
+
+% % %%Plotting Accelerations
+figure;
+A_plt1 = subplot(3,1,1); plot(time,measured_acc_body2); legend('d_x','d_y','d_z','d_{ox}','d_{oy}','d_{oz}'); title('Body2 acceleration measured'); xlabel('sec'); ylabel('m/s-rad/s^2');
+A_plt2 = subplot(3,1,2); plot(time,R_acc_body2_computed); legend('d_x','d_y','d_z','d_{ox}','d_{oy}','d_{oz}'); title('Revolute - Body2 acceleration computed'); xlabel('sec'); ylabel('m/s-rad/s^2');
+A_plt3 = subplot(3,1,3); plot(time,P_acc_body2_computed); legend('d_x','d_y','d_z','d_{ox}','d_{oy}','d_{oz}'); title('Prismatic - Body2 acceleration computed'); xlabel('sec'); ylabel('m/s-rad/s^2');
+linkaxes([A_plt1 A_plt2 A_plt3],'xy')
 
 %%Plotting External Wrench - wrt Inertial Frame
 figure; 
-w_plt1 = subplot(3,1,1); plot(time,world_left_wrench); legend('e_{ox}','e_{oy}','e_{oz}','e_x','e_y','e_z'); title('Left Wrench_{world}');
-w_plt2 = subplot(3,1,2); plot(time,world_right_wrench); legend('e_{ox}','e_{oy}','e_{oz}','e_x','e_y','e_z'); title('Right Wrench_{world}');
-w_plt3 = subplot(3,1,3); plot(time,measured_wrench_abs); legend('e_{ox}','e_{oy}','e_{oz}','e_x','e_y','e_z'); title('Total Wrench_{world}');
+w_plt1 = subplot(3,1,1); plot(time,world_left_wrench); legend('e_{ox}','e_{oy}','e_{oz}','e_x','e_y','e_z'); title('Left Wrench_{world}'); xlabel('sec');  ylabel('N - Nm');
+w_plt2 = subplot(3,1,2); plot(time,world_right_wrench); legend('e_{ox}','e_{oy}','e_{oz}','e_x','e_y','e_z'); title('Right Wrench_{world}'); xlabel('sec');  ylabel('N - Nm');
+w_plt3 = subplot(3,1,3); plot(time,measured_wrench_abs); legend('e_{ox}','e_{oy}','e_{oz}','e_x','e_y','e_z'); title('Total Wrench_{world}'); xlabel('sec');  ylabel('N - Nm');
 linkaxes([w_plt1 w_plt2 w_plt3],'xy')
 
 % % %%Plotting Joint Hypothesis RoM
 % % figure; 
-% % RH_plt = subplot(2,1,1); plot(time,R_momentum_change_computed); legend('d_x','d_y','d_z','d_{ox}','d_{oy}','d_{oz}'); title('Revolute Hypothesis - Rate of Change in Momentum');
-% % PH_plt = subplot(2,1,2); plot(time,P_momentum_change_computed); legend('d_x','d_y','d_z','d_{ox}','d_{oy}','d_{oz}'); title('Prismatic Hypothesis - Rate of Change in Momentum');
+% % RH_plt = subplot(2,1,1); plot(time,R_momentum_change_computed); legend('d_x','d_y','d_z','d_{ox}','d_{oy}','d_{oz}'); title('Revolute Hypothesis - Rate of Change in Momentum'); xlabel('sec');
+% % PH_plt = subplot(2,1,2); plot(time,P_momentum_change_computed); legend('d_x','d_y','d_z','d_{ox}','d_{oy}','d_{oz}'); title('Prismatic Hypothesis - Rate of Change in Momentum'); xlabel('sec');
 % % % linkaxes([RH_plt PH_plt],'xy')
 
 %%Plotting Joint Hypothesis
 figure;
-Rdiff_plt1 = subplot(2,1,1); plot(time,R_diff); legend('d_x','d_y','d_z','d_{ox}','d_{oy}','d_{oz}'); title('Revolute Hypothesis using diff');
-Pdiff_plt2 = subplot(2,1,2); plot(time,P_diff); legend('d_x','d_y','d_z','d_{ox}','d_{oy}','d_{oz}'); title('Prismatic Hypothesis using diff');
+Rdiff_plt1 = subplot(2,1,1); plot(time,R_diff); legend('d_x','d_y','d_z','d_{ox}','d_{oy}','d_{oz}'); title('Revolute Hypothesis using diff'); xlabel('sec');
+Pdiff_plt2 = subplot(2,1,2); plot(time,P_diff); legend('d_x','d_y','d_z','d_{ox}','d_{oy}','d_{oz}'); title('Prismatic Hypothesis using diff'); xlabel('sec');
 linkaxes([Rdiff_plt1 Pdiff_plt2],'xy')
 
 figure;
-Rcomp_plt1 = subplot(2,1,1); plot(time,R_comp); legend('d_x','d_y','d_z','d_{ox}','d_{oy}','d_{oz}'); title('Revolute Hypothesis computed');
-Pcomp_plt2 = subplot(2,1,2); plot(time,P_comp); legend('d_x','d_y','d_z','d_{ox}','d_{oy}','d_{oz}'); title('Prismatic Hypothesis computed');
+Rcomp_plt1 = subplot(2,1,1); plot(time,R_comp); legend('d_x','d_y','d_z','d_{ox}','d_{oy}','d_{oz}'); title('Revolute Hypothesis computed'); xlabel('sec');
+Pcomp_plt2 = subplot(2,1,2); plot(time,P_comp); legend('d_x','d_y','d_z','d_{ox}','d_{oy}','d_{oz}'); title('Prismatic Hypothesis computed'); xlabel('sec');
 linkaxes([Rcomp_plt1 Pcomp_plt2],'xy')
