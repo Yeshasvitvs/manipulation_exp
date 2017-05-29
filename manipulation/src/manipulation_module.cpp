@@ -2,7 +2,7 @@
 
 double ManipulationModule::getPeriod()
 {
-    return 1.0;
+    return 0.001; //This is in seconds
 }
 
 bool ManipulationModule::updateModule()
@@ -23,7 +23,6 @@ bool ManipulationModule::updateModule()
     
     if(manipulation->getPoseAndWrenchInput())
     {
-        //TODO write them to a text file together
         manipulation->getPoseAndWrenchInfo();
     }
     else{
