@@ -204,24 +204,34 @@ void Manipulation::applyWrenches()
 
 bool Manipulation::getPoseAndWrenchInput()
 {
-    
     bool input_read = true; 
     
     //Reading pose values from gazebo
     yarp::os::Bottle *pose = input_pose_port->read();
     if(pose == NULL)
+    {
         input_read = false;
+        yError() << "Coundln't get pose"; 
+    }
     else
+    {
         pose_input = *pose;
-    
+        //yInfo() << "Received pose values" << pose_input.toString();
+    }
     //Reading new wrench values
     left_wrench_ = left_wrench_input_port_->read();
     if(left_wrench_ == NULL)
+    {
         input_read = false;
+        yError() << "Coundln't get left wrench";
+    }
     
     right_wrench_ = right_wrench_input_port_->read();
     if(right_wrench_ == NULL)
+    {
         input_read = false;
+        yError() << "Coundln't get right wrench";
+    }
     
     return input_read;
 }
