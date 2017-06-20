@@ -9,7 +9,7 @@ pri_slow()
   COUNT=0
   while [ ${COUNT} -lt 20 ];
   do
-    echo "set pos 0 0.15" | yarp rpc /${OBJECT_NAME}/body/rpc:i
+    echo "set pos 0 0.1" | yarp rpc /${OBJECT_NAME}/body/rpc:i
     sleep 6.75
     echo "set pos 0 0" | yarp rpc /${OBJECT_NAME}/body/rpc:i
     sleep 6.75
@@ -24,7 +24,7 @@ pri_medium()
   COUNT=0
   while [ ${COUNT} -lt 20 ];
   do
-    echo "set pos 0 0.15" | yarp rpc /${OBJECT_NAME}/body/rpc:i
+    echo "set pos 0 0.11" | yarp rpc /${OBJECT_NAME}/body/rpc:i
     sleep 4
     echo "set pos 0 0" | yarp rpc /${OBJECT_NAME}/body/rpc:i
     sleep 4
@@ -39,7 +39,7 @@ pri_fast()
   COUNT=0
   while [ ${COUNT} -lt 20 ];
   do
-    echo "set pos 0 0.15" | yarp rpc /${OBJECT_NAME}/body/rpc:i
+    echo "set pos 0 0.1" | yarp rpc /${OBJECT_NAME}/body/rpc:i
     sleep 5
     echo "set pos 0 0" | yarp rpc /${OBJECT_NAME}/body/rpc:i
     sleep 5
@@ -55,7 +55,6 @@ echo ""
 
 $1 "$2"
 
-echo "OBJECT NAME : ${OBJECT_NAME}"
 if [[ $# -eq 0 ]] ; then
     echo "[Revolute Motor Control] No options were passed!"
     echo ""

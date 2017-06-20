@@ -4,8 +4,8 @@ function X = transformFT(T,offset)
   R = T(1:3,1:3);
  
   newP = R'*P;
-  Px = vec2skew(newP);
-  
-  X = [R Px*R; zeros(3) R];
+
+  newT = [R,newP;0 0 0 1];
+  X = transformXstar(newT);
   
 end
