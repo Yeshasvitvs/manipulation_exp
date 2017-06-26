@@ -3,7 +3,7 @@ clear all;
 clc; 
 
 %%This code works for this particular prismatic motion data set
-filename = '/home/yeshi/projects/manipulation_exp/manipulation/data/pri1.txt';
+filename = '/home/yeshi/projects/manipulation_exp/manipulation/data/WORKING_primotion1.txt';
 data = importdata(filename);
 
 index=1;
@@ -15,11 +15,11 @@ for i=1:1:max_index
 end
 
 
-% % filename = '/home/yeshi/projects/manipulation_exp/manipulation/data/revmotion.txt';
+% % filename = '/home/yeshi/projects/manipulation_exp/manipulation/data/rmotion3.txt';
 % % data = importdata(filename);
 % % 
 % % index=1;
-% % rev_step = 2150
+% % rev_step = 2000;
 % % max_index = ceil(size(data,1)/rev_step);
 % % for i=1:1:max_index
 % %     [Phyp(index,:) Rhyp(index,:)] = algorithmRev(data(i:i+rev_step,:));
