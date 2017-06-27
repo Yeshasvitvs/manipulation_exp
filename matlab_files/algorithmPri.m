@@ -123,8 +123,14 @@ function [Phyp Rhyp] = algorithmPri(data)
     
   end
 
-  Phyp = sum(P.*P);
-  Rhyp = sum(R.*R);
+  %%Hypothesis with 6 individual components
+  Phyp6 = sum(P.*P);
+  Rhyp6 = sum(R.*R);
+  
+  %%Norm of the hypothesis
+  Phyp = norm(Phyp6);
+  Rhyp = norm(Rhyp6);
+  
 %   pause
 
 end
