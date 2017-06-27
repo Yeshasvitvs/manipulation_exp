@@ -9,9 +9,9 @@ pri_slow()
   COUNT=0
   while [ ${COUNT} -lt 20 ];
   do
-    echo "set pos 0 0.1" | yarp rpc /${OBJECT_NAME}/body/rpc:i
+    echo "set pos 0 0.15" | yarp rpc /${OBJECT_NAME}/body/rpc:i
     sleep 6.75
-    echo "set pos 0 0" | yarp rpc /${OBJECT_NAME}/body/rpc:i
+    echo "set pos 0 0.05" | yarp rpc /${OBJECT_NAME}/body/rpc:i
     sleep 6.75
     let COUNT=COUNT+1
   done
