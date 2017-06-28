@@ -7,42 +7,12 @@ pri_slow()
   echo "running slow prismatic motor control"
   echo "set vel 0 10" | yarp rpc /${OBJECT_NAME}/body/rpc:i
   COUNT=0
-  while [ ${COUNT} -lt 20 ];
+  while [ ${COUNT} -lt 10 ];
   do
     echo "set pos 0 0.15" | yarp rpc /${OBJECT_NAME}/body/rpc:i
-    sleep 6.75
-    echo "set pos 0 0.05" | yarp rpc /${OBJECT_NAME}/body/rpc:i
-    sleep 6.75
-    let COUNT=COUNT+1
-  done
-}
-
-pri_medium()
-{
-  echo "running medium prismatic motor control"
-  echo "set vel 0 500" | yarp rpc /${OBJECT_NAME}/body/rpc:i
-  COUNT=0
-  while [ ${COUNT} -lt 20 ];
-  do
-    echo "set pos 0 0.11" | yarp rpc /${OBJECT_NAME}/body/rpc:i
-    sleep 4
-    echo "set pos 0 0" | yarp rpc /${OBJECT_NAME}/body/rpc:i
-    sleep 4
-    let COUNT=COUNT+1
-  done
-}
-
-pri_fast()
-{
-  echo "running fast prismatic motor control for ${OBJECT_NAME}"
-  echo "set vel 0 100" | yarp rpc /${OBJECT_NAME}/body/rpc:i
-  COUNT=0
-  while [ ${COUNT} -lt 20 ];
-  do
-    echo "set pos 0 0.1" | yarp rpc /${OBJECT_NAME}/body/rpc:i
-    sleep 5
-    echo "set pos 0 0" | yarp rpc /${OBJECT_NAME}/body/rpc:i
-    sleep 5
+    sleep 12
+    echo "set pos 0 0.01" | yarp rpc /${OBJECT_NAME}/body/rpc:i
+    sleep 12
     let COUNT=COUNT+1
   done
 }

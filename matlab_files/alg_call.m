@@ -3,36 +3,44 @@ clear all;
 clc; 
 
 %%This code works for this particular prismatic motion data set
-filename = '/home/yeshi/projects/manipulation_exp/manipulation/data/newmassprimotion2.txt';
-data1 = importdata(filename);
-% data=data1(967:27310,:);
-% data = data1(600:26700,:);
-data=data1(200:24500,:);
+filename = '/home/yeshi/projects/manipulation_exp/manipulation/data/newpmotion3.txt';
+data = importdata(filename);
 
-index=1;
-pri_step = 700;
-max_index = ceil(size(data,1)/pri_step);
-for i=1:1:max_index
-    [Phyp(index,:) Rhyp(index,:)] = algorithmPri(data(i:i+pri_step,:));
-    index=index+1;
+for step=100:100:5000
+    
+    %%Empty Initialization of Hypothesis Vectors
+    Phyp = [];
+    Rhyp = [];
+    
+    index=1;
+    pri_step = step; %%Indicates the number of samples of motion data considered for computing the hypothesis
+    max_index = ceil(size(data,1)/pri_step);
+    for i=1:1:max_index
+        [Phyp(index,:) Rhyp(index,:)] = algorithmPri(data(i:i+pri_step,:));
+        index=index+1;
+    end
+    
+    %%Plot - Hypothesis
+    clf;
+    figure(1);
+    plot(Phyp); hold on;
+    plot(Rhyp); hold on;
+    title('Joint Nature Hypothesis');
+    legend('Prismatic','Revolute');
+    
+    %%Text box to print step size
+    textBox = uicontrol('style','text');
+    stepStr = sprintf('Step Size : %d', pri_step);
+    set(textBox,'String',stepStr,...
+        'Position',[235 2 120 20],...
+        'HorizontalAlignment','left',...
+        'FontSize',10);
+    hold off;
+    
+    %%Plot - Hypothesis Difference
+    figure(2);
+    plot(Phyp-Rhyp);
+    title('Hypothesis Difference(P-R)');
+    
+    pause(0.1);
 end
-
-
-% % filename = '/home/yeshi/projects/manipulation_exp/manipulation/data/rmotion3.txt';
-% % data = importdata(filename);
-% % 
-% % index=1;
-% % rev_step = 2000;
-% % max_index = ceil(size(data,1)/rev_step);
-% % for i=1:1:max_index
-% %     [Phyp(index,:) Rhyp(index,:)] = algorithmRev(data(i:i+rev_step,:));
-% %     index=index+1;
-% % end
-
-figure;
-Phandle = subplot(2,1,1); plot(Phyp); title('Prismatic Hypothesis'); xlabel('sec'); legend('d_x','d_y','d_z','d_{ox}','d_{oy}','d_{oz}')
-Rhandle = subplot(2,1,2); plot(Rhyp); title('Revolute Hypothesis'); xlabel('sec'); legend('d_x','d_y','d_z','d_{ox}','d_{oy}','d_{oz}')
-% linkaxes([Phandle Rhandle],'xy');
-
-figure;
-plot(Phyp-Rhyp); title('Hypothesis Difference(P-R)'); xlabel('sec'); legend('d_x','d_y','d_z','d_{ox}','d_{oy}','d_{oz}')

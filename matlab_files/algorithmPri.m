@@ -16,14 +16,16 @@ function [Phyp Rhyp] = algorithmPri(data)
   right_wrench = data(:,22:27); %%FT at Body2
 
   %%Rigid Body Properties
-  m1 = 1; %%Kgs
-  I_c1 = [0.00025   0         0;
-          0         0.00324   0;
-          0         0         0.0034]; %%Inertia at CoM - taken from  SDF
+  m1 = 4.5; %%Kgs
+  I_c1 = [0.001133   0         0;
+          0         0.01508   0;
+          0         0         0.01575]; %%Inertia at CoM - taken from  SDF
   com1 = [0.1; 0; 0.0125];
 
-  m2 = 1; %%Kgs
-  I_c2 = I_c1; %%Inertia at CoM - taken from  SDF
+  m2 = 2; %%Kgs
+  I_c2 = [0.0005035   0         0;
+          0         0.0067035   0;
+          0         0         0.007]; %%Inertia at CoM - taken from  SDF
   com2 = [0.1; 0; -0.0125];
 
   M_1 = spatialInertia(m1,I_c1,com1);

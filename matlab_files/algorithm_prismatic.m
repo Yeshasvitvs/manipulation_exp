@@ -2,9 +2,10 @@ close all;
 clear all; 
 clc; 
 
-filename = '/home/yeshi/projects/manipulation_exp/manipulation/data/newmassprimotion2.txt';
+filename = '/home/yeshi/projects/manipulation_exp/manipulation/data/newpmotion3.txt';
 data = importdata(filename);
-% data=data1(4200:5200,:);
+% data=data1(30000:80000,:);
+
 t = data(:,1); %%Time received in seconds
 t = t - t(1,1); %%Corrected to zero
 dt = diff(t); %%dt
@@ -21,15 +22,17 @@ left_wrench = data(:,16:21); %%FT at Body1
 right_wrench = data(:,22:27); %%FT at Body2
 
 %%Rigid Body Properties
-m1 = 1; %%Kgs
-I_c1 = [0.00025   0         0;
-        0         0.00324   0;
-        0         0         0.0034]; %%Inertia at CoM - taken from  SDF
-com1 = [0.1; 0; 0.0125];
+  m1 = 4.5; %%Kgs
+  I_c1 = [0.001133   0         0;
+          0         0.01508   0;
+          0         0         0.01575]; %%Inertia at CoM - taken from  SDF
+  com1 = [0.1; 0; 0.0125];
 
-m2 = 1; %%Kgs
-I_c2 = I_c1; %%Inertia at CoM - taken from  SDF
-com2 = [0.1; 0; -0.0125];
+  m2 = 2; %%Kgs
+  I_c2 = [0.0005035   0         0;
+          0         0.0067035   0;
+          0         0         0.007]; %%Inertia at CoM - taken from  SDF
+  com2 = [0.1; 0; -0.0125];
 
 M_1 = spatialInertia(m1,I_c1,com1);
 M_2 = spatialInertia(m2,I_c2,com2);
@@ -145,39 +148,39 @@ figure;
 subplot(2,1,1); plot(t,Sp); title('Prismatic Joint Axes');  xlabel('sec'); legend('d_x','d_y','d_z','d_{ox}','d_{oy}','d_{oz}')
 subplot(2,1,2); plot(t,Sr); title('Revolute Joint Axes');  xlabel('sec'); legend('d_x','d_y','d_z','d_{ox}','d_{oy}','d_{oz}')
 
-% % 
-% % %%Joint Velocity
+
+%%Joint Velocity
+figure;
+subplot(2,1,1); plot(t,V_A_PJ); title('Prismatic Joint Velocity');  xlabel('sec'); legend('d_x','d_y','d_z','d_{ox}','d_{oy}','d_{oz}')
+subplot(2,1,2); plot(t,V_A_RJ); title('Revolute Joint Velocity');  xlabel('sec'); legend('d_x','d_y','d_z','d_{ox}','d_{oy}','d_{oz}')
+
+%%Body 2 Velocity
+figure;
+subplot(3,1,1); plot(t,V_A_1); title('Body1 Velocity');  xlabel('sec'); legend('d_x','d_y','d_z','d_{ox}','d_{oy}','d_{oz}')
+subplot(3,1,2); plot(t,V_A_P2); title('Prismatic Body2 Velocity');  xlabel('sec'); legend('d_x','d_y','d_z','d_{ox}','d_{oy}','d_{oz}')
+subplot(3,1,3); plot(t,V_A_R2); title('Revolute Body2 Velocity');  xlabel('sec'); legend('d_x','d_y','d_z','d_{ox}','d_{oy}','d_{oz}')
+
+%%Total Momentum
+figure;
+subplot(2,1,1); plot(t,h2P); title('Prismatic - Body2 Momentum');  xlabel('sec'); legend('d_x','d_y','d_z','d_{ox}','d_{oy}','d_{oz}')
+subplot(2,1,2); plot(t,h2R); title('Revolute - Body2 Momentum');  xlabel('sec'); legend('d_x','d_y','d_z','d_{ox}','d_{oy}','d_{oz}')
+
 % % figure;
-% % subplot(2,1,1); plot(t,V_A_PJ); title('Prismatic Joint Velocity');  xlabel('sec'); legend('d_x','d_y','d_z','d_{ox}','d_{oy}','d_{oz}')
-% % subplot(2,1,2); plot(t,V_A_RJ); title('Revolute Joint Velocity');  xlabel('sec'); legend('d_x','d_y','d_z','d_{ox}','d_{oy}','d_{oz}')
-% % 
-% % %%Body 2 Velocity
-% % figure;
-% % subplot(3,1,1); plot(t,V_A_1); title('Body1 Velocity');  xlabel('sec'); legend('d_x','d_y','d_z','d_{ox}','d_{oy}','d_{oz}')
-% % subplot(3,1,2); plot(t,V_A_P2); title('Prismatic Body2 Velocity');  xlabel('sec'); legend('d_x','d_y','d_z','d_{ox}','d_{oy}','d_{oz}')
-% % subplot(3,1,3); plot(t,V_A_R2); title('Revolute Body2 Velocity');  xlabel('sec'); legend('d_x','d_y','d_z','d_{ox}','d_{oy}','d_{oz}')
-% % 
-% % %%Total Momentum
-% % figure;
-% % subplot(2,1,1); plot(t,h2P); title('Prismatic - Body2 Momentum');  xlabel('sec'); legend('d_x','d_y','d_z','d_{ox}','d_{oy}','d_{oz}')
-% % subplot(2,1,2); plot(t,h2R); title('Revolute - Body2 Momentum');  xlabel('sec'); legend('d_x','d_y','d_z','d_{ox}','d_{oy}','d_{oz}')
-% % 
-% % % % figure;
-% % % % subplot(2,1,1); plot(t,h_A_P); title('Prismatic - Total Momentum');  xlabel('sec'); legend('d_x','d_y','d_z','d_{ox}','d_{oy}','d_{oz}')
-% % % % subplot(2,1,2); plot(t,h_A_R); title('Revolute - Total Momentum');  xlabel('sec'); legend('d_x','d_y','d_z','d_{ox}','d_{oy}','d_{oz}')
-% % 
-% % %%Wrench - Local Frame
-% % figure;
-% % subplot(2,1,1); plot(t,left_wrench); title('FT1 Local Frame');  xlabel('sec'); legend('e_{ox}','e_{oy}','e_{oz}','e_x','e_y','e_z');
-% % subplot(2,1,2); plot(t,right_wrench); title('FT2 Local Frame');  xlabel('sec'); legend('e_{ox}','e_{oy}','e_{oz}','e_x','e_y','e_z');
-% % 
-% % %%Wrench - Inertial Frame
-% % figure;
-% % subplot(3,1,1); plot(t,F_A_1); title('FT1 Inertial Frame');  xlabel('sec'); legend('e_{ox}','e_{oy}','e_{oz}','e_x','e_y','e_z');
-% % subplot(3,1,2); plot(t,F_A_2); title('FT2 Inertial Frame');  xlabel('sec'); legend('e_{ox}','e_{oy}','e_{oz}','e_x','e_y','e_z');
-% % subplot(3,1,3); plot(t,W_A); title('Total Wrench');  xlabel('sec'); legend('e_{ox}','e_{oy}','e_{oz}','e_x','e_y','e_z');
-% % 
-% %  %%Joint Hypothesis
-% % figure;
-% % subplot(2,1,1); plot(t,P); title('Prismatic Hypothesis');  xlabel('sec');
-% % subplot(2,1,2); plot(t,R); title('Revolute Hypothesis');  xlabel('sec');
+% % subplot(2,1,1); plot(t,h_A_P); title('Prismatic - Total Momentum');  xlabel('sec'); legend('d_x','d_y','d_z','d_{ox}','d_{oy}','d_{oz}')
+% % subplot(2,1,2); plot(t,h_A_R); title('Revolute - Total Momentum');  xlabel('sec'); legend('d_x','d_y','d_z','d_{ox}','d_{oy}','d_{oz}')
+
+%%Wrench - Local Frame
+figure;
+subplot(2,1,1); plot(t,left_wrench); title('FT1 Local Frame');  xlabel('sec'); legend('e_{ox}','e_{oy}','e_{oz}','e_x','e_y','e_z');
+subplot(2,1,2); plot(t,right_wrench); title('FT2 Local Frame');  xlabel('sec'); legend('e_{ox}','e_{oy}','e_{oz}','e_x','e_y','e_z');
+
+%%Wrench - Inertial Frame
+figure;
+subplot(3,1,1); plot(t,F_A_1); title('FT1 Inertial Frame');  xlabel('sec'); legend('e_{ox}','e_{oy}','e_{oz}','e_x','e_y','e_z');
+subplot(3,1,2); plot(t,F_A_2); title('FT2 Inertial Frame');  xlabel('sec'); legend('e_{ox}','e_{oy}','e_{oz}','e_x','e_y','e_z');
+subplot(3,1,3); plot(t,W_A); title('Total Wrench');  xlabel('sec'); legend('e_{ox}','e_{oy}','e_{oz}','e_x','e_y','e_z');
+
+ %%Joint Hypothesis
+figure;
+subplot(2,1,1); plot(t,P); title('Prismatic Hypothesis');  xlabel('sec');
+subplot(2,1,2); plot(t,R); title('Revolute Hypothesis');  xlabel('sec');
