@@ -2,7 +2,7 @@ close all;
 clear all; 
 clc; 
 
-filename = '/home/yeshi/projects/manipulation_exp/manipulation/data/newrmotion6.txt';
+filename = '/home/yeshi/projects/manipulation_exp/manipulation/data/newrmotion10.txt';
 data = importdata(filename);
 % data=data1(1:1000,:);
 t = data(:,1); %%Time received in seconds

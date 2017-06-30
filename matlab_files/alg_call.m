@@ -3,21 +3,21 @@ clear all;
 clc; 
 
 %%This code works for this particular prismatic motion data set
-filename = '/home/yeshi/projects/manipulation_exp/manipulation/data/newrmotion3.txt';
+filename = '/home/yeshi/projects/manipulation_exp/manipulation/data/newrmotion10.txt';
 data = importdata(filename);
 
-for step=100:100:5000
+for step=100:50:5000
     
     %%Empty Initialization of Hypothesis Vectors
     Phyp = [];
     Rhyp = [];
     
     index=1;
-    pri_step = 1400; %%Indicates the number of samples of motion data considered for computing the hypothesis
-    max_index = ceil(size(data,1)/pri_step);
+    step_size = step; %%Indicates the number of samples of motion data considered for computing the hypothesis
+    max_index = ceil(size(data,1)/step_size);
     for i=1:1:max_index
         %%[Phyp(index,:) Rhyp(index,:)] = algorithmPri(data(i:i+pri_step,:));
-        [Phyp(index,:) Rhyp(index,:)] = algorithmRev(data(i:i+pri_step,:));
+        [Phyp(index,:) Rhyp(index,:)] = algorithmRev(data(i:i+step_size,:));
         index=index+1;
     end
     
