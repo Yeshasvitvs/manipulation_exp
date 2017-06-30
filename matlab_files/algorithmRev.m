@@ -16,14 +16,16 @@ function [Phyp Rhyp] = algorithmRev(data)
   right_wrench = data(:,22:27); %%FT at Body2
 
   %%Rigid Body Properties
-  m1 = 1; %%Kgs
-  I_c1 = [0.00025   0         0;
-          0         0.00324   0;
-          0         0         0.0034]; %%Inertia at CoM - taken from  SDF
+  m1 =4.5; %%Kgs
+  I_c1 = [0.001801   0         0;
+          0          0.01575   0;
+          0          0         0.01575]; %%Inertia at CoM - taken from  SDF
   com1 = [0.1; 0; 0];
 
-  m2 = 1; %%Kgs
-  I_c2 = I_c1; %%Inertia at CoM - taken from  SDF
+  m2 = 2; %%Kgs
+  I_c2 = [0.0008   0         0;
+          0        0.007   0;
+          0        0         0.007]; %%Inertia at CoM - taken from  SDF
   com2 = [0.15; 0; 0];
 
   M_1 = spatialInertia(m1,I_c1,com1);
@@ -124,8 +126,14 @@ function [Phyp Rhyp] = algorithmRev(data)
     
   end
 
-  Phyp = sum(P.*P);
-  Rhyp = sum(R.*R);
+  %%Hypothesis with 6 individual components
+  Phyp6 = sum(P.*P);
+  Rhyp6 = sum(R.*R);
+  
+  %%Norm of the hypothesis
+  Phyp = norm(Phyp6);
+  Rhyp = norm(Rhyp6);
+  
 %   pause
 
 end
