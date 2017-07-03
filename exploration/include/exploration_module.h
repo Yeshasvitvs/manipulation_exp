@@ -11,6 +11,7 @@ class ExplorationModule:public yarp::os::RFModule
     yarp::os::RpcServer rpc_port;
     
     std::string robotName;
+    std::string partName;
     
     Exploration *exploration;
     
@@ -38,8 +39,9 @@ public:
             attach(rpc_port);
         
         robotName = rf.find("robot").asString();
-
-        exploration = new Exploration(robotName);
+        partName = rf.find("part").asString();
+        
+        exploration = new Exploration(robotName,partName);
         
         return true;
     }
