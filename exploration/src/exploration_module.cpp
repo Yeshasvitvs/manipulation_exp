@@ -2,12 +2,12 @@
 
 double ExplorationModule::getPeriod()
 {
-    return 0.001; //This is in seconds
+    return 5; //This is in seconds
 }
 
 bool ExplorationModule::updateModule()
 { 
-    yInfo() << "Exploration Module Update";
+    exploration->explore();
     return true;
 }
 
