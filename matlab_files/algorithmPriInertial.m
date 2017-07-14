@@ -1,15 +1,16 @@
-function [Phyp Rhyp] = algorithmRevInertial(data,mass1,mass2,comass1,comass2,Ic1,Ic2)
+function [Phyp Rhyp] = algorithmPriInertial(data,mass1,mass2,comass1,comass2,Ic1,Ic2)
 
   g = [0;0;-9.8;0;0;0]; %%Gravity
+  
+  %%Pose Values - Angular part is quaternion
+  pose_1 = data(:,2:8);
+  pose_2 = data(:,9:15);
+  
   t = data(:,1); %%Time received in seconds
   t = t - t(1,1); %%Corrected to zero
   dt = diff(t); %%dt
   dt=[0;dt];
-
-  %%Pose Values - Angular part is quaternion
-  pose_1 = data(:,2:8); 
-  pose_2 = data(:,9:15);
-
+  
   %%Interaction Wrench - Measured in local frame
   left_wrench = data(:,16:21); %%FT at Body1
   right_wrench = data(:,22:27); %%FT at Body2
@@ -20,7 +21,7 @@ function [Phyp Rhyp] = algorithmRevInertial(data,mass1,mass2,comass1,comass2,Ic1
   com1 = comass1;
 
   m2 = mass2; %%Kgs
-  I_c2 = Ic2; %%Inertia at CoM - taken from  SDF
+  I_c2 = Ic2;
   com2 = comass2;
 
   M_1 = spatialInertia(m1,I_c1,com1);
@@ -90,8 +91,8 @@ function [Phyp Rhyp] = algorithmRevInertial(data,mass1,mass2,comass1,comass2,Ic1
     
       %%Computing Spatial Inertia
       %%TODO Check if the transformation is X or X*
-      M_A_1 = transformXstar(T_A_1)*M_1*inv(transformX(T_A_1)); %%This is the same as transformX(inv(T))
-      M_A_2 = transformXstar(T_A_2)*M_2*inv(transformX(T_A_1));
+      M_A_1 = transformXstar(T_A_1)*M_1*inv(transformX(T_A_1));; %%This is the same as transformX(inv(T))
+      M_A_2 = transformXstar(T_A_2)*M_2*inv(transformX(T_A_1));;
     
       %%Total momentum of the system
       h2P(i,:) = M_A_2 * V_A_P2(i,:)';
@@ -110,18 +111,10 @@ function [Phyp Rhyp] = algorithmRevInertial(data,mass1,mass2,comass1,comass2,Ic1
       end
     
       %%Computing External Wrench
-      ft2_offset = 0.275; %%NOTE: This theta angle is w.r.t the first link, but it has to be gotten w.r.t the world
-      F_A_1(i,:) = transformFT(T_A_1,[-0.025;0;0])*left_wrench(i,:)';
-      F_A_2(i,:) = transformFT(T_A_2,[ft2_offset*cos(theta(i,:));ft2_offset*sin(theta(i,:));0])*right_wrench(i,:)';
+      F_A_1(i,:) = transformFT(T_A_1,[0;0;0])*left_wrench(i,:)';
+      F_A_2(i,:) = transformFT(T_A_2,[0.225;0;0])*right_wrench(i,:)';
+      W_A(i,:) = F_A_1(i,:) + F_A_2(i,:);
     
-      %%Gravity Forces on links
-% %       com2_offset = com2(1);
-% %       G_A_1(i,:) = (transformFT(T_A_1,com1)*m1*g)';
-% %       G_A_2(i,:) = (transformFT(T_A_2,[com2_offset*cos(theta(i,:)); com2_offset*sin(theta(i,:));0])*m2*g)';
-% %       G(i,:) = G_A_1(i,:) + G_A_2(i,:);
-    
-      W_A(i,:) = F_A_1(i,:) + F_A_2(i,:); %%+ G(i,:);
-      
       %%Hypothesis Computation
       P(i,:) = W_A(i,:) - dh_A_P(i,:);
       R(i,:) = W_A(i,:) - dh_A_R(i,:);
@@ -137,5 +130,4 @@ function [Phyp Rhyp] = algorithmRevInertial(data,mass1,mass2,comass1,comass2,Ic1
   Rhyp = norm(Rhyp6);
   
 %   pause
-
 end
