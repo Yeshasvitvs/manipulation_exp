@@ -3,10 +3,10 @@ clear all;
 clc; 
 
 %%This code works for this particular prismatic motion data set
-filename = '/home/yeshi/projects/manipulation_exp/manipulation/data/newrmotion10.txt';
+filename = '/home/yeshi/projects/manipulation_exp/manipulation/data/dgnewpmotion1.txt';
 data = importdata(filename);
 
-for step=100:50:5000
+for step=160:200:10000
     
     %%Empty Initialization of Hypothesis Vectors
     Phyp = [];
@@ -16,8 +16,8 @@ for step=100:50:5000
     step_size = step; %%Indicates the number of samples of motion data considered for computing the hypothesis
     max_index = ceil(size(data,1)/step_size);
     for i=1:1:max_index
-        %%[Phyp(index,:) Rhyp(index,:)] = algorithmPri(data(i:i+pri_step,:));
-        [Phyp(index,:) Rhyp(index,:)] = algorithmRev(data(i:i+step_size,:));
+        [Phyp(index,:) Rhyp(index,:)] = algorithmPri(data(i:i+step_size,:));
+%         [Phyp(index,:) Rhyp(index,:)] = algorithmRev(data(i:i+step_size,:));
         index=index+1;
     end
     
@@ -42,6 +42,17 @@ for step=100:50:5000
     figure(2);
     plot(Phyp-Rhyp);
     title('Hypothesis Difference(P-R)');
+    
+    max_diff = max(Phyp-Rhyp);
+    min_diff = min(Phyp-Rhyp);
+    if( min_diff < 0)
+        display('**********NEGATIVE CHECK*********') %%Should never occur for revolute joint
+        sprintf('Index : %d',step)
+    end
+    if( max_diff > 0)
+        display('**********POSITIVE CHECK*********') %%Should never occur for prismatic joint
+        sprintf('Index : %d',step)
+    end
     
     pause(0.1);
 end

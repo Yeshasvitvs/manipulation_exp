@@ -1,19 +1,43 @@
 function [Phyp Rhyp] = algorithmPri(data)
 
+  %%Pose Values - Angular part is quaternion
+  pose_1 = data(:,2:8);
+  pose_2 = data(:,9:15);
+  
   t = data(:,1); %%Time received in seconds
   t = t - t(1,1); %%Corrected to zero
   dt = diff(t); %%dt
   dt=[0;dt];
-  dt2 = diff(t(2:end)); %%dt2
-  dt2 = [0;0;dt2];
-
-  %%Pose Values - Angular part is quaternion
-  pose_1 = data(:,2:8);
-  pose_2 = data(:,9:15);
-
+  
   %%Interaction Wrench - Measured in local frame
   left_wrench = data(:,16:21); %%FT at Body1
   right_wrench = data(:,22:27); %%FT at Body2
+
+
+% %   %%Pose Values - Angular part is quaternion
+% %   p1 = data(:,2:8);
+% %   p2 = data(:,9:15);
+% % 
+% %   %%Noise and Filtering
+% %   K = 3;  % Order of polynomial fit
+% %   F = 151;  % Window length
+% %   HalfWin  = ((F+1)/2) -1;
+% %   SNR = 10000000000000000000000000000000000;  %Signal-Noise ratio
+% % 
+% %   pose_1  = poseNoiseSmoothing(SNR, K, F, p1);
+% %   pose_2  = poseNoiseSmoothing(SNR, K, F, p2);
+% % 
+% %   % % figure(1); plot(p2);
+% %   % % figure(2); plot(pose_2)
+% % 
+% %   t = data(HalfWin+1:end-HalfWin-1,1); %%Time received in seconds
+% %   t = t - t(1,1); %%Corrected to zero
+% %   dt = diff(t); %%dt
+% %   dt=[0;dt];
+% % 
+% %   %%Interaction Wrench - Measured in local frame
+% %   left_wrench = data(HalfWin+1:end-HalfWin-1,16:21); %%FT at Body1
+% %   right_wrench = data(HalfWin+1:end-HalfWin-1,22:27); %%FT at Body2
 
   %%Rigid Body Properties
   m1 = 4.5; %%Kgs
