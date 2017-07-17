@@ -3,36 +3,32 @@ clear all;
 clc; 
 
 %%This code works for this particular prismatic motion data set
-filename = '/home/yeshi/projects/manipulation_exp/manipulation/data/dgnewrmotion2.txt';
+filename = '/home/yeshi/projects/manipulation_exp/manipulation/data/onetestpdata1.txt';
 data = importdata(filename);
-% % data = [];
-% % 
-% % %%Adding Noise
-% % %%Pose Values - Angular part is quaternion
-% % p1 = data1(:,2:8);
-% % p2 = data1(:,9:15);
-% % 
-% % %%Noise and Filtering
-% % K = 3;  % Order of polynomial fit
-% % F = 1031;  % Window length
-% % HalfWin  = ((F+1)/2) -1;
-% % SNR = 1000;  %Signal-Noise ratio
-% % STD = 0.000000001; %Noise Standard Deviation
-% % 
-% % data(:,2:8)  = poseNoiseSmoothing(SNR, STD, K, F, p1);
-% % pause; 
-% % clf;
-% % data(:,9:15)  = poseNoiseSmoothing(SNR, STD, K, F, p2);
-% % 
-% % pause;
-% % 
-% % data(:,1) = data1(HalfWin+1:end-HalfWin-1,1); %%Time received in seconds
-% % 
-% % %%Interaction Wrench - Measured in local frame
-% % data(:,16:21) = data1(HalfWin+1:end-HalfWin-1,16:21); %%FT at Body1
-% % data(:,22:27) = data1(HalfWin+1:end-HalfWin-1,22:27); %%FT at Body2
+% % % data = [];
+% % % 
+% % % %%Adding Noise
+% % % %%Pose Values - Angular part is quaternion
+% % % p1 = data1(:,2:8);
+% % % p2 = data1(:,9:15);
+% % % 
+% % % %%Noise and Filtering
+% % % K = 3;  % Order of polynomial fit
+% % % F = 1031;  % Window length
+% % % HalfWin  = ((F+1)/2) -1;
+% % % SNR = 1000;  %Signal-Noise ratio
+% % % STD = 0.000000001; %Noise Standard Deviation
+% % % 
+% % % data(:,2:8)  = poseNoiseSmoothing(SNR, STD, K, F, p1);
+% % % data(:,9:15)  = poseNoiseSmoothing(SNR, STD, K, F, p2);
+% % % 
+% % % data(:,1) = data1(HalfWin+1:end-HalfWin-1,1); %%Time received in seconds
+% % % 
+% % % %%Interaction Wrench - Measured in local frame
+% % % data(:,16:21) = data1(HalfWin+1:end-HalfWin-1,16:21); %%FT at Body1
+% % % data(:,22:27) = data1(HalfWin+1:end-HalfWin-1,22:27); %%FT at Body2
 
-for step=4000:500:20000
+for step=10:10:20000
     
     %%Empty Initialization of Hypothesis Vectors
     Phyp = [];
@@ -44,8 +40,8 @@ for step=4000:500:20000
     if(max_index >= 2)
         index=1;
         for i=1:1:max_index-1 %%Given a max index, the number of motion blocks to analyse
-%             [Phyp(index,:) Rhyp(index,:)] = algorithmPri(data(i:i+step_size,:));
-            [Phyp(i,:) Rhyp(i,:)] = algorithmRev(data(index:index+step_size,:));
+            [Phyp(i,:) Rhyp(i,:)] = algorithmPri(data(index:index+step_size,:));
+%             [Phyp(i,:) Rhyp(i,:)] = algorithmRev(data(index:index+step_size,:));
             index=index+step_size;
         end
         

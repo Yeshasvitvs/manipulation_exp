@@ -1,5 +1,7 @@
 function [Phyp Rhyp] = algorithmPri(data)
 
+  g = [0;0;-9.8;0;0;0]; %%Gravity
+
   %%Pose Values - Angular part is quaternion
   pose_1 = data(:,2:8);
   pose_2 = data(:,9:15);
@@ -12,32 +14,6 @@ function [Phyp Rhyp] = algorithmPri(data)
   %%Interaction Wrench - Measured in local frame
   left_wrench = data(:,16:21); %%FT at Body1
   right_wrench = data(:,22:27); %%FT at Body2
-
-
-% %   %%Pose Values - Angular part is quaternion
-% %   p1 = data(:,2:8);
-% %   p2 = data(:,9:15);
-% % 
-% %   %%Noise and Filtering
-% %   K = 3;  % Order of polynomial fit
-% %   F = 151;  % Window length
-% %   HalfWin  = ((F+1)/2) -1;
-% %   SNR = 10000000000000000000000000000000000;  %Signal-Noise ratio
-% % 
-% %   pose_1  = poseNoiseSmoothing(SNR, K, F, p1);
-% %   pose_2  = poseNoiseSmoothing(SNR, K, F, p2);
-% % 
-% %   % % figure(1); plot(p2);
-% %   % % figure(2); plot(pose_2)
-% % 
-% %   t = data(HalfWin+1:end-HalfWin-1,1); %%Time received in seconds
-% %   t = t - t(1,1); %%Corrected to zero
-% %   dt = diff(t); %%dt
-% %   dt=[0;dt];
-% % 
-% %   %%Interaction Wrench - Measured in local frame
-% %   left_wrench = data(HalfWin+1:end-HalfWin-1,16:21); %%FT at Body1
-% %   right_wrench = data(HalfWin+1:end-HalfWin-1,22:27); %%FT at Body2
 
   %%Rigid Body Properties
   m1 = 4.5; %%Kgs
@@ -142,6 +118,14 @@ function [Phyp Rhyp] = algorithmPri(data)
       F_A_1(i,:) = transformFT(T_A_1,[0;0;0])*left_wrench(i,:)';
       F_A_2(i,:) = transformFT(T_A_2,[0.225;0;0])*right_wrench(i,:)';
       W_A(i,:) = F_A_1(i,:) + F_A_2(i,:);
+      
+      %%Gravity Forces on links
+      com2_offset = com2(1);
+      G_A_1(i,:) = (transformFT(T_A_1,com1)*m1*g)';
+      G_A_2(i,:) = (transformFT(T_A_2,[com2_offset*cos(theta(i,:)); com2_offset*sin(theta(i,:));0])*m2*g)';
+      G(i,:) = G_A_1(i,:) + G_A_2(i,:);
+
+      W_A(i,:) = F_A_1(i,:) + F_A_2(i,:) + G(i,:);
     
       %%Hypothesis Computation
       P(i,:) = W_A(i,:) - dh_A_P(i,:);
