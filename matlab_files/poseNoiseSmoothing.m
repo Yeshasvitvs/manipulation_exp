@@ -1,4 +1,4 @@
-function  P = noiseSmoothing(snr, k, f, pose)
+function  P = noiseSmoothing(snr, std, k, f, pose)
 
   %%Adding Additive White Gaussian Noise
 % %   pos_snr = snr;
@@ -6,7 +6,7 @@ function  P = noiseSmoothing(snr, k, f, pose)
 % %   pose_noisy_pos(:,2) = add_awgn_noise(pose(:,2),pos_snr);
 % %   pose_noisy_pos(:,3) = add_awgn_noise(pose(:,3),pos_snr);
   
-  pose_noisy_pos(:,1:3) = pose(:,1:3) + 0.000000000001*randn(size(pose,1),3);
+  pose_noisy_pos(:,1:3) = pose(:,1:3) + std*randn(size(pose,1),3);
  
   %%Quaternions to Euler Angles
   for i = 1:1:size(pose,1)
@@ -18,7 +18,7 @@ function  P = noiseSmoothing(snr, k, f, pose)
 % %   pose_noisy_ori(:,2) = add_awgn_noise(pose_ang(:,2),ori_snr);
 % %   pose_noisy_ori(:,3) = add_awgn_noise(pose_ang(:,3),ori_snr);
 
-  pose_noisy_ori(:,1:3) = pose_ang(:,1:3) + 0.0000000000001*randn(size(pose,1),3);
+  pose_noisy_ori(:,1:3) = pose_ang(:,1:3) + std*randn(size(pose,1),3);
 
   %%SG Filter Smoothing of Noisy Signal
   K = k;                 % Order of polynomial fit

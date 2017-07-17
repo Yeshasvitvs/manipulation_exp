@@ -1,15 +1,15 @@
 function [Phyp Rhyp] = algorithmRev(data)
 
+  g = [0;0;-9.8;0;0;0]; %%Gravity
+  
+  %%Pose Values - Angular part is quaternion
+  pose_1 = data(:,2:8);
+  pose_2 = data(:,9:15);
+
   t = data(:,1); %%Time received in seconds
   t = t - t(1,1); %%Corrected to zero
   dt = diff(t); %%dt
   dt=[0;dt];
-  dt2 = diff(t(2:end)); %%dt2
-  dt2 = [0;0;dt2];
-
-  %%Pose Values - Angular part is quaternion
-  pose_1 = data(:,2:8);
-  pose_2 = data(:,9:15);
 
   %%Interaction Wrench - Measured in local frame
   left_wrench = data(:,16:21); %%FT at Body1
@@ -37,7 +37,6 @@ function [Phyp Rhyp] = algorithmRev(data)
       T_A_2 = transformH(pose_2(i,:));
     
       T_1_2 = inv(T_A_1)*(T_A_2);
-%       X_1_2 = transformX(T_1_2);
     
       %%Joint Quantities
       P_1_2 = linear(T_1_2);   
@@ -49,14 +48,6 @@ function [Phyp Rhyp] = algorithmRev(data)
       else
           Sp(i,:) = [(P_1_2/d(i,:));0;0;0];
       end
-    
-% %     if d(i,:) <= 0.01
-% %         d(i,:) = 0;
-% %         Sp(i,:) = [0;0;0;0;0;0]; %%This is setting the axis to zero - meaning Fixed joint
-% %         %%Sp(i,:) = [0;0;1;0;0;0]; %%This is setting axis to y direction
-% %     else
-% %         Sp(i,:) = [P_1_2/(d(i,:));0;0;0]; %%Prismatic axis - TODO: Change in the algorithm
-% %     end
     
       R_1_2 = rot(T_1_2);
       axisAngleVector = vrrotmat2vec(R_1_2);
@@ -94,9 +85,8 @@ function [Phyp Rhyp] = algorithmRev(data)
       V_A_R2(i,:) = V_A_1(i,:) + V_A_RJ(i,:);
     
       %%Computing Spatial Inertia
-      %%TODO Check if the transformation is X or X*
-      M_A_1 = transformXstar(T_A_1)*M_1*inv(transformX(T_A_1));; %%This is the same as transformX(inv(T))
-      M_A_2 = transformXstar(T_A_2)*M_2*inv(transformX(T_A_1));;
+      M_A_1 = transformXstar(T_A_1)*M_1*inv(transformX(T_A_1)); %%This is the same as transformX(inv(T))
+      M_A_2 = transformXstar(T_A_2)*M_2*inv(transformX(T_A_1));
     
       %%Total momentum of the system
       h2P(i,:) = M_A_2 * V_A_P2(i,:)';
@@ -116,10 +106,17 @@ function [Phyp Rhyp] = algorithmRev(data)
     
       %%Computing External Wrench
       ft2_offset = 0.275; %%NOTE: This theta angle is w.r.t the first link, but it has to be gotten w.r.t the world
-      F_A_1(i,:) = transformFT(T_A_1,[0;0;0])*left_wrench(i,:)';
+      F_A_1(i,:) = transformFT(T_A_1,[-0.025;0;0])*left_wrench(i,:)';
       F_A_2(i,:) = transformFT(T_A_2,[ft2_offset*cos(theta(i,:));ft2_offset*sin(theta(i,:));0])*right_wrench(i,:)';
-      W_A(i,:) = F_A_1(i,:) + F_A_2(i,:);
     
+      %%Gravity Forces on links
+      com2_offset = com2(1);
+      G_A_1(i,:) = (transformFT(T_A_1,com1)*m1*g)';
+      G_A_2(i,:) = (transformFT(T_A_2,[com2_offset*cos(theta(i,:)); com2_offset*sin(theta(i,:));0])*m2*g)';
+      G(i,:) = G_A_1(i,:) + G_A_2(i,:);
+    
+      W_A(i,:) = F_A_1(i,:) + F_A_2(i,:) + G(i,:);
+      
       %%Hypothesis Computation
       P(i,:) = W_A(i,:) - dh_A_P(i,:);
       R(i,:) = W_A(i,:) - dh_A_R(i,:);
@@ -134,6 +131,4 @@ function [Phyp Rhyp] = algorithmRev(data)
   Phyp = norm(Phyp6);
   Rhyp = norm(Rhyp6);
   
-%   pause
-
 end
