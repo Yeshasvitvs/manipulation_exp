@@ -115,12 +115,12 @@ function [Phyp Rhyp] = algorithmRevInertial(data,mass1,mass2,comass1,comass2,Ic1
       F_A_2(i,:) = transformFT(T_A_2,[ft2_offset*cos(theta(i,:));ft2_offset*sin(theta(i,:));0])*right_wrench(i,:)';
     
       %%Gravity Forces on links
-% %       com2_offset = com2(1);
-% %       G_A_1(i,:) = (transformFT(T_A_1,com1)*m1*g)';
-% %       G_A_2(i,:) = (transformFT(T_A_2,[com2_offset*cos(theta(i,:)); com2_offset*sin(theta(i,:));0])*m2*g)';
-% %       G(i,:) = G_A_1(i,:) + G_A_2(i,:);
+      com2_offset = com2(1);
+      G_A_1(i,:) = (transformFT(T_A_1,com1)*m1*g)';
+      G_A_2(i,:) = (transformFT(T_A_2,[com2_offset*cos(theta(i,:)); com2_offset*sin(theta(i,:));0])*m2*g)';
+      G(i,:) = G_A_1(i,:) + G_A_2(i,:);
     
-      W_A(i,:) = F_A_1(i,:) + F_A_2(i,:); %%+ G(i,:);
+      W_A(i,:) = F_A_1(i,:) + F_A_2(i,:) + G(i,:);
       
       %%Hypothesis Computation
       P(i,:) = W_A(i,:) - dh_A_P(i,:);

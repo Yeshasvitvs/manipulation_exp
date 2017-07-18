@@ -3,10 +3,10 @@ clear all;
 clc; 
 
 %%This code works for this particular prismatic motion data set
-filename = '/home/yeshi/projects/manipulation_exp/manipulation/data/dgnewpmotion1.txt';
+filename = '/home/yeshi/projects/manipulation_exp/manipulation/data/onetestpdata1.txt';
 data = importdata(filename);
 
-check_size = 30;
+check_size = 10;
 m1 =4.5*ones(check_size,1);
 m2 = 2*ones(check_size,1);
 
@@ -70,48 +70,70 @@ for step=1:1:check_size
     S2(3,3) = S2(3,3) + S2(3,3)*(a + (b-a).*rand(1,1));
     I_c2(step).I = U2*S2*V2';
     
-    
-    index=1;
-    step_size = 650; %%Indicates the number of samples of motion data considered for computing the hypothesis
+    step_size = 550; %%Indicates the number of samples of motion data considered for computing the hypothesis
     max_index = ceil(size(data,1)/step_size);
-    for i=1:1:max_index
-        [Phyp(index,:) Rhyp(index,:)] = algorithmRevInertial(data(i:i+step_size,:),m1(step),m2(step),com1(:,step),com2(:,step),I_c1(step).I,I_c2(step).I);
-        %%[Phyp(index,:) Rhyp(index,:)] = algorithmPriInertial(data(i:i+step_size,:),m1(step),m2(step),com1(:,step),com2(:,step),I_c1(step).I,I_c2(step).I);
-        index=index+1;
+    
+    if(max_index >= 2)
+        index=1;
+        for i=1:1:max_index-1 %%Given a max index, the number of motion blocks to analyse
+            [Phyp(i,:) Rhyp(i,:)] = algorithmPriInertial(data(index:index+step_size,:),m1(step),m2(step),com1(:,step),com2(:,step),I_c1(step).I,I_c2(step).I);
+%             [Phyp(i,:) Rhyp(i,:)] = algorithmRevInertial(data(index:index+step_size,:),m1(step),m2(step),com1(:,step),com2(:,step),I_c1(step).I,I_c2(step).I);
+            index=index+step_size;
+        end
+       
+% %        %%Plot - Hypothesis
+% %         clf;
+% %         figure(1);
+% %         if(size(Phyp,1) <= 1)
+% %             plot(Phyp,'*b'); hold on;
+% %             plot(Rhyp,'*r'); hold on;
+% %         else
+% %             plot(Phyp); hold on;
+% %             plot(Rhyp); hold on;
+% %         end
+% %         
+% %         title('Joint Nature Hypothesis');
+% %         legend('Prismatic','Revolute');
+% %     
+% %         %%Text box to print step size
+% %         textBox = uicontrol('style','text');
+% %         stepStr = sprintf('Step Size : %d', step_size);
+% %         set(textBox,'String',stepStr,...
+% %             'Position',[235 2 120 20],...
+% %             'HorizontalAlignment','left',...
+% %             'FontSize',10);
+% %         hold off;
+    
+        %%Plot - Hypothesis Difference
+        figure(2);
+        hyp_diff = Phyp - Rhyp;
+        if(size(Phyp,1) <= 1)
+            plot(hyp_diff,'*k'); hold on;
+        else
+            plot(hyp_diff); hold on;
+        end
+        title('Hypothesis Difference(P-R)');
+    
+        max_diff = max(Phyp-Rhyp);
+        min_diff = min(Phyp-Rhyp);
+        if( min_diff < 0)
+            display('**********NEGATIVE CHECK*********') %%Should never occur for revolute joint
+            sprintf('Check Index : %d',step)
+        end
+        if( max_diff > 0)
+            display('**********POSITIVE CHECK*********') %%Should never occur for prismatic joint
+            sprintf('Check Index : %d',step)
+        end
+        
+        pause(0.3);
+    
+    else
+        break;
     end
     
-% %     %%Plot - HypothesisNEGATIVE
-% %     clf;
-% %     figure(1);
-% %     plot(Phyp); hold on;
-% %     plot(Rhyp); hold on;
-% %     title('Joint Nature Hypothesis');
-% %     legend('Prismatic','Revolute');
-% %     
-% %     %%Text box to print step size
-% %     textBox = uicontrol('style','text');
-% %     stepStr = sprintf('Step Size : %d', step_size);
-% %     set(textBox,'String',stepStr,...
-% %         'Position',[235 2 120 20],...
-% %         'HorizontalAlignment','left',...
-% %         'FontSize',10);
-% %     hold off;
-% %     
-% %     %%Plot - Hypothesis Difference
-% %     figure(2);
-% %     plot(Phyp-Rhyp); hold on;
-% %     title('Hypothesis Difference(P-R)');
-    max_diff = max(Phyp-Rhyp);
-    min_diff = min(Phyp-Rhyp);
-    if( min_diff < 0)
-        display('**********NEGATIVE CHECK*********') %%Should never occur for revolute joint
-        sprintf('Index : %d',step)
-    end
-    if( max_diff > 0)
-        display('**********POSITIVE CHECK*********') %%Should never occur for prismatic joint
-        sprintf('Index : %d',step)
-    end
-    pause(0.1);
+   
+    
+
 end
 
 
