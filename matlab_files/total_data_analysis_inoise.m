@@ -4,6 +4,8 @@ clc;
 
 g = [0;0;-9.8;0;0;0]; %%Gravity
 
+model = 'prismatic';
+
 if(strcmp(model,'prismatic'))
     mat_data_directory_name = '/home/yeshi/projects/manipulation_exp/matlab_files/FINAL_DATA_MAT/inoise_pdata/';
     data_directory_name = '/home/yeshi/projects/manipulation_exp/manipulation/data/FINAL_DATA/pdata/';
@@ -28,7 +30,7 @@ for n=1:1:num_files
     delimiterIn = ' ';
     data1 = importdata(data_file_name,delimiterIn);
     
-    half_data_size = round(size(data2,1)/2);
+    half_data_size = round(size(data1,1)/2);
     data = data1(1:half_data_size,:);
     
    for j = 1:1:inoise_run_size
