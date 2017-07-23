@@ -32,7 +32,7 @@ com2 = [0.15; 0; 0];
 % % com2 = [0.1; 0; -0.0125];
 
 
-filename = '/home/yeshi/projects/manipulation_exp/manipulation/data/onetestrdata1.txt';
+filename = '/home/yeshi/projects/manipulation_exp/manipulation/data/looptestrdata5.txt';
 data = importdata(filename);
 % % data = [];
 % % 
