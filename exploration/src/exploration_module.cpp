@@ -7,7 +7,7 @@ double ExplorationModule::getPeriod()
 
 bool ExplorationModule::updateModule()
 { 
-    exploration->explore();
+    //exploration->anchor();
     return true;
 }
 

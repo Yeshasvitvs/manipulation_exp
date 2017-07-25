@@ -12,6 +12,7 @@ class ExplorationModule:public yarp::os::RFModule
     
     std::string robotName;
     std::string partName;
+    std::string expMode;
     
     Exploration *exploration;
     
@@ -40,8 +41,9 @@ public:
         
         robotName = rf.find("robot").asString();
         partName = rf.find("part").asString();
+        expMode = rf.find("exploration").asString();
         
-        exploration = new Exploration(robotName,partName);
+        exploration = new Exploration(robotName,partName,expMode);
         
         return true;
     }

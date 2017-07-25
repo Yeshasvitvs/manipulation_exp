@@ -4,35 +4,42 @@ clc;
 
 g = [0;0;-9.8;0;0;0]; %%Gravity
 
-%%Revolute Model - Rigid Body Properties
-m1 =4.5; %%Kgs
-I_c1 = [0.001801   0         0;
-        0          0.01575   0;
-        0          0         0.01575]; %%Inertia at CoM - taken from  SDF
-com1 = [0.1; 0; 0];
+model = 'prismatic'
 
-m2 = 2; %%Kgs
-I_c2 = [0.0008   0         0;
-        0        0.007   0;
-        0        0         0.007]; %%Inertia at CoM - taken from  SDF
-com2 = [0.15; 0; 0];
+if(strcmp(model,'prismatic'))
+    
+    filename = '/home/yeshi/projects/manipulation_exp/manipulation/data/fonetestpdata1.txt';
+    %%Prismatic Model - Rigid Body Properties
+    m1 = 4.5; %%Kgs
+    I_c1 = [0.001133   0         0;
+            0         0.01508   0;
+            0         0         0.01575]; %%Inertia at CoM - taken from  SDF
+    com1 = [0.1; 0; 0.0125];
 
+    m2 = 2; %%Kgs
+    I_c2 = [0.0005035   0         0;
+            0         0.0067035   0;
+            0         0         0.007]; %%Inertia at CoM - taken from  SDF
+    com2 = [0.1; 0; -0.0125];
 
-% % %%Prismatic Model - Rigid Body Properties
-% % m1 = 4.5; %%Kgs
-% % I_c1 = [0.001133   0         0;
-% %         0         0.01508   0;
-% %         0         0         0.01575]; %%Inertia at CoM - taken from  SDF
-% % com1 = [0.1; 0; 0.0125];
-% % 
-% % m2 = 2; %%Kgs
-% % I_c2 = [0.0005035   0         0;
-% %         0         0.0067035   0;
-% %         0         0         0.007]; %%Inertia at CoM - taken from  SDF
-% % com2 = [0.1; 0; -0.0125];
+else
+    
+     filename = '/home/yeshi/projects/manipulation_exp/manipulation/data/fonetestrdata1.txt';
+    %%Revolute Model - Rigid Body Properties
+    m1 =4.5; %%Kgs
+    I_c1 = [0.001801   0         0;
+            0          0.01575   0;
+            0          0         0.01575]; %%Inertia at CoM - taken from  SDF
+    com1 = [0.1; 0; 0];
 
+    m2 = 2; %%Kgs
+    I_c2 = [0.0008   0         0;
+            0        0.007   0;
+            0        0         0.007]; %%Inertia at CoM - taken from  SDF
+    com2 = [0.15; 0; 0];
 
-filename = '/home/yeshi/projects/manipulation_exp/manipulation/data/looptestrdata5.txt';
+end
+
 data = importdata(filename);
 % % data = [];
 % % 

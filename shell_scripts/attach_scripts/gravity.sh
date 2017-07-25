@@ -1,0 +1,8 @@
+#!/bin/bash
+#This script opens the yarp rpc port to object attacher gazebo_yarp_plugin and attaches 1R1P object to iCub
+
+CMD="enableGravity floating_base_1R1P_2Link 1"
+
+yarp rpc /icubSim/oa/rpc:i ${CMD}
+
+#yarp rpc /icubSim/oa/rpc:i enableGravity floating_base_1R1P_2Link 1

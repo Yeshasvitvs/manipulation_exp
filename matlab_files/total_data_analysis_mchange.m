@@ -4,14 +4,14 @@ clc;
 
 g = [0;0;-9.8;0;0;0]; %%Gravity
 
-model = 'revolute';
+model = 'prismatic';
 
 if(strcmp(model,'prismatic'))
-    mat_data_directory_name = '/home/yeshi/projects/manipulation_exp/matlab_files/FINAL_DATA_MAT/mchange_pdata/';
-    data_directory_name = '/home/yeshi/projects/manipulation_exp/manipulation/data/FINAL_DATA/pdata/';
+    mat_data_directory_name = '/home/yeshi/projects/manipulation_exp/matlab_files/FINAL_DATA_MAT/force_control/mchange_pdata/';
+    data_directory_name = '/home/yeshi/projects/manipulation_exp/manipulation/data/FINAL_DATA/force_control/pdata/';
 else
-    mat_data_directory_name = '/home/yeshi/projects/manipulation_exp/matlab_files/FINAL_DATA_MAT/mchange_rdata/';
-    data_directory_name = '/home/yeshi/projects/manipulation_exp/manipulation/data/FINAL_DATA/rdata/';
+    mat_data_directory_name = '/home/yeshi/projects/manipulation_exp/matlab_files/FINAL_DATA_MAT/force_control/mchange_rdata/';
+    data_directory_name = '/home/yeshi/projects/manipulation_exp/manipulation/data/FINAL_DATA/force_control/rdata/';
 end
 
 mat_data_directory = dir([mat_data_directory_name]);
@@ -19,7 +19,7 @@ mat_data_directory = dir([mat_data_directory_name]);
 data_directory = dir([data_directory_name,'*.txt']);
 num_files = length(data_directory(not([data_directory.isdir])));
 
-mchange_step = 0.01;
+mchange_step = 0.05;
 mchange_value = 0.5;
 mchange = [-mchange_value:mchange_step:mchange_value];
 mchange_run_size = size(mchange,2);
@@ -50,7 +50,7 @@ for n=1:1:num_files
        I2 = [0.0005035   0           0;
              0           0.0067035   0;
              0           0           0.007]; %%Inertia at CoM - taken from  SDF
-             I_c2 = [];
+       I_c2 = [];
    else
            
        %%These are for revolute model
@@ -93,21 +93,17 @@ for n=1:1:num_files
        I_c2 = U2*S2*V2';
 
        if(strcmp(model,'prismatic'))
-           [hypdiff value] = algorithmPrismatic(data,m1,m2,com1,com2,I_c1,I_c2,g);
+           [hypdiff phyp rhyp] = algorithmPrismatic(data,m1,m2,com1,com2,I_c1,I_c2,g);
        else
-           [hypdiff value] = algorithmRevolute(data,m1,m2,com1,com2,I_c1,I_c2,g);
+           [hypdiff phyp rhyp] = algorithmRevolute(data,m1,m2,com1,com2,I_c1,I_c2,g);
        end
 
        dummy = strsplit(data_file_name,'/');
        fname = strsplit(char(dummy(end)),'.');
-       if(strcmp(model,'prismatic'))
-           mat_file_name = strcat(char(fname(1)),'mchange',num2str(j),'.mat');
-       else
-           mat_file_name = strcat(char(fname(1)),'mchange',num2str(j),'.mat');
-       end
-       cd(mat_data_directory_name)
-       save(mat_file_name)
-           
+       mat_file_name = strcat(char(fname(1)),'mchange',num2str(j),'.mat');
+       cd(mat_data_directory_name);
+       save(mat_file_name);
+       pause(1);
    end 
    
 end

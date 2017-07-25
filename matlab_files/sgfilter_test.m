@@ -4,7 +4,7 @@ clc;
 
 K = 4;                 % Order of polynomial fit
 F = 21;                % Window length
-[b,g] = sgolay(K,F);   % Calculate S-G coefficients
+[b,g] = SgolayWrapper(K,F);   % Calculate S-G coefficients
 
 dx = .2;
 xLim = 200;

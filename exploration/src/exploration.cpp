@@ -1,9 +1,10 @@
 #include <exploration.h>
 
-Exploration::Exploration(std::string& robot, std::string& part)
+Exploration::Exploration(std::string& robot, std::string& part, std::string& mode)
 {
     robot_name_ = robot;
     part_name_ = part;
+    exploration_mode_ = mode;
     motion_done_ = false;
     
     //Motor Control Device
@@ -30,7 +31,14 @@ Exploration::Exploration(std::string& robot, std::string& part)
     {
         yError() << log_motor_device << " Error getting IPositionsControl interface";
         exit(EXIT_FAILURE);
-    }else pos_->getAxes(&njoints_);
+    }
+    else
+    {
+        pos_->getAxes(&njoints_);
+        stiff_.resize(njoints_);
+        damp_.resize(njoints_);
+        torques_.resize(njoints_);
+    }
     
     motor_device_.view(vel_);
     if(vel_ == 0)
@@ -74,7 +82,6 @@ Exploration::Exploration(std::string& robot, std::string& part)
         exit(EXIT_FAILURE);
     }
     
-    
     //Cartesian Controller Device
     cart_options_.put("device","cartesiancontrollerclient");
     
@@ -102,17 +109,53 @@ Exploration::Exploration(std::string& robot, std::string& part)
         exit(EXIT_FAILURE);
     }
     
-    
+    if(exploration_mode_ == "anchor")
+        anchor();
+    else if(exploration_mode_ == "free")
+        explore();
+}
+
+bool Exploration::anchor()
+{
+    //Setting joint stiffness and damping high
+    yInfo() << part_name_ << " anchoring mode";
+    for(int i = 1; i < njoints_ ; i++)
+    {
+        stiff_[i] = 100;
+        damp_[i] = 100;
+        bool ok = iimp_->setImpedance(i, stiff_[i], damp_[i]);
+        ictrl_->setControlMode(i,VOCAB_CM_POSITION);
+        iint_->setInteractionMode(i,yarp::dev::VOCAB_IM_COMPLIANT);
+        if(!ok)
+        {
+            yError() << "[" << part_name_ << " anchor mode] setImpedance failed!"; 
+        }
+    }
 }
 
 bool Exploration::explore()
 {
-    icart_ ->getPose(position_,orientation_);
-    yInfo() << part_name_ << "Pose Acquisition : " << position_[0];
+    yInfo() << part_name_ << " exploring mode";
+    //Setting joint stiffness and damping low
+    for(int i = 1; i < njoints_ ; i++)
+    {
+        stiff_[i] = 0;
+        damp_[i] = 0;
+        bool ok = iimp_->setImpedance(i, stiff_[i], damp_[i]);
+        ictrl_->setControlMode(i,VOCAB_CM_POSITION);
+        iint_->setInteractionMode(i,yarp::dev::VOCAB_IM_COMPLIANT);
+        if(!ok)
+        {
+            yError() << "[" << part_name_ << " explore mode] setImpedance failed!"; 
+        }
+    }
+    
+    //icart_ ->getPose(position_,orientation_);
+    //yInfo() << part_name_ << "Pose Acquisition : " << position_[0];
    
     //Left arm acts as an anchor
-    icart_->goToPoseSync(position_,orientation_);
-    icart_->waitMotionDone(0.04);
+    //icart_->goToPoseSync(position_,orientation_);
+    //icart_->waitMotionDone(0.04);
 
 }
 

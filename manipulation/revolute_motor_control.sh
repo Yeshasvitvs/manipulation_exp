@@ -5,46 +5,30 @@ OBJECT_NAME=1r_2link
 rev_slow()
 {
   echo "running slow revolute motor control"
-  echo "set vel 0 10" | yarp rpc /${OBJECT_NAME}/body/rpc:i
+  echo "set vel 0 25" | yarp rpc /${OBJECT_NAME}/body/rpc:i
+  echo "log start looptestrdata5.txt" | yarp rpc /manipulationModule/rpc:i
+  sleep 5
   COUNT=0
-  while [ ${COUNT} -lt 20 ];
+  while [ ${COUNT} -lt 5 ];
   do
-    echo "set pos 0 -180" | yarp rpc /${OBJECT_NAME}/body/rpc:i
-    sleep 30
-    echo "set pos 0 0" | yarp rpc /${OBJECT_NAME}/body/rpc:i
-    sleep 30
-    let COUNT=COUNT+1
-  done
-}
-
-rev_medium()
-{
-  echo "running medium revolute motor control"
-  echo "set vel 0 50" | yarp rpc /${OBJECT_NAME}/body/rpc:i
-  COUNT=0
-  while [ ${COUNT} -lt 20 ];
-  do
-    echo "set pos 0 -180" | yarp rpc /${OBJECT_NAME}/body/rpc:i
-    sleep 15
-    echo "set pos 0 0" | yarp rpc /${OBJECT_NAME}/body/rpc:i
-    sleep 15
-    let COUNT=COUNT+1
-  done
-}
-
-rev_fast()
-{
-  echo "running fast revolute motor control for ${OBJECT_NAME}"
-  echo "set vel 0 100" | yarp rpc /${OBJECT_NAME}/body/rpc:i
-  COUNT=0
-  while [ ${COUNT} -lt 20 ];
-  do
-    echo "set pos 0 -180" | yarp rpc /${OBJECT_NAME}/body/rpc:i
+    echo "set pos 0 95" | yarp rpc /${OBJECT_NAME}/body/rpc:i
     sleep 5
-    echo "set pos 0 0" | yarp rpc /${OBJECT_NAME}/body/rpc:i
+    echo "set pos 0 5" | yarp rpc /${OBJECT_NAME}/body/rpc:i
     sleep 5
     let COUNT=COUNT+1
   done
+  echo "log stop" | yarp rpc /manipulationModule/rpc:i
+}
+
+rev_one()
+{
+  echo "running one revolute motor control once"
+  echo "set vel 0 5" | yarp rpc /${OBJECT_NAME}/body/rpc:i
+  echo "log start slowonetestrdata1.txt" | yarp rpc /manipulationModule/rpc:i
+  sleep 2
+  echo "set pos 0 95" | yarp rpc /${OBJECT_NAME}/body/rpc:i
+  sleep 25
+  echo "log stop" | yarp rpc /manipulationModule/rpc:i
 }
 
 #######################################################################################
@@ -55,7 +39,6 @@ echo ""
 
 $1 "$2"
 
-echo "OBJECT NAME : ${OBJECT_NAME}"
 if [[ $# -eq 0 ]] ; then
     echo "[Revolute Motor Control] No options were passed!"
     echo ""

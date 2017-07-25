@@ -1,4 +1,4 @@
-function plots(t, d, theta, Sp, Sr, V_A_PJ, V_A_RJ, V_A_1, V_A_P2, V_A_R2, h_A_P, h_A_R, F_A_1, F_A_2, W_A, P, R)
+function plots(t, d, theta, Sp, Sr, V_A_PJ, V_A_RJ, V_A_1, V_A_P2, V_A_R2, h_A_P, h_A_R, F_A_1, F_A_2, G_A_1, G_A_2, W_A, P, R)
 
   %%Joint Angle radians to angles
   theta = theta*(180/pi);
@@ -33,8 +33,18 @@ function plots(t, d, theta, Sp, Sr, V_A_PJ, V_A_RJ, V_A_1, V_A_P2, V_A_R2, h_A_P
   figure;
   subplot(3,1,1); plot(t,F_A_1); title('FT1 Inertial Frame');  xlabel('sec'); legend('e_{ox}','e_{oy}','e_{oz}','e_x','e_y','e_z');
   subplot(3,1,2); plot(t,F_A_2); title('FT2 Inertial Frame');  xlabel('sec'); legend('e_{ox}','e_{oy}','e_{oz}','e_x','e_y','e_z');
-  subplot(3,1,3); plot(t,W_A); title('Total Wrench');  xlabel('sec'); legend('e_{ox}','e_{oy}','e_{oz}','e_x','e_y','e_z');
-
+  subplot(3,1,3); plot(t,W_A); title('Total External Wrench');  xlabel('sec'); legend('e_{ox}','e_{oy}','e_{oz}','e_x','e_y','e_z');
+  
+% %   %%Gravity Forces - Inertial Frame
+% %   figure;
+% %   subplot(3,1,1); plot(t,G_A_1); title('GA1 Inertial Frame');  xlabel('sec'); legend('e_{ox}','e_{oy}','e_{oz}','e_x','e_y','e_z');
+% %   subplot(3,1,2); plot(t,G_A_2); title('GA2 Inertial Frame');  xlabel('sec'); legend('e_{ox}','e_{oy}','e_{oz}','e_x','e_y','e_z');
+% %   subplot(3,1,3); plot(t,G_A_1+G_A_2); title('Total Gravity Wrench');  xlabel('sec'); legend('e_{ox}','e_{oy}','e_{oz}','e_x','e_y','e_z');
+% %   
+% %   figure;
+% %   plot(t,W_A); title('Total Wrench');  xlabel('sec'); legend('e_{ox}','e_{oy}','e_{oz}','e_x','e_y','e_z');
+  
+  
   %%Joint Hypothesis
   figure;
   subplot(2,1,1); plot(t,P); title('Prismatic Hypothesis');  xlabel('sec');

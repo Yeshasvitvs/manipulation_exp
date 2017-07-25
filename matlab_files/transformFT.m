@@ -1,11 +1,8 @@
 function X = transformFT(T,offset)
 
-  P = T(1:3,4) + offset;
-  R = T(1:3,1:3);
- 
-  newP = R'*P;
-
-  newT = [R,newP;0 0 0 1];
+  T_ft_offset = [eye(3,3),offset;0 0 0 1];
+  newT = T*T_ft_offset;
+  newT(2,4) = -newT(2,4);
   X = transformXstar(newT);
   
 end

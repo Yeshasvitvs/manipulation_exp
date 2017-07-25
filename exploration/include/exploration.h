@@ -22,12 +22,18 @@ class Exploration
       
       std::string robot_name_;
       std::string part_name_;
+      std::string exploration_mode_;
 
       int njoints_;
       yarp::sig::Vector encoders_;
       bool motion_done_;
-  
+      
+      yarp::sig::Vector stiff_;
+      yarp::sig::Vector damp_;
+      yarp::sig::Vector torques_;
+      
   public:
+      
       yarp::os::Property device_options_;
       yarp::dev::PolyDriver motor_device_;
       
@@ -46,9 +52,10 @@ class Exploration
       
       yarp::sig::Vector position_, orientation_;
       
+      bool anchor();
       bool explore();
       
-      Exploration(std::string&, std::string&);
+      Exploration(std::string&, std::string&, std::string&);
       ~Exploration();
 };
 

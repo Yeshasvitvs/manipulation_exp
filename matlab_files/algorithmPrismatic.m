@@ -1,4 +1,4 @@
-function [Phyp  Rhyp] = algorithmPrismatic(data,mass1,mass2,comass1,comass2,Ic1,Ic2, g)
+function [hyp_diff Phyp Rhyp] = algorithmPrismatic(data,mass1,mass2,comass1,comass2,Ic1,Ic2, g)
   
   t = data(:,1); %%Time received in seconds
   t = t - t(1,1); %%Corrected to zero
@@ -112,13 +112,13 @@ function [Phyp  Rhyp] = algorithmPrismatic(data,mass1,mass2,comass1,comass2,Ic1,
     
     %%Computing External Wrench
     ft2_offset = 0.225; %%NOTE: This theta angle is w.r.t the first link, but it has to be gotten w.r.t the world
-    F_A_1(i,:) = transformFT(T_A_1,[-0.025;0;0])*left_wrench(i,:)';
-    F_A_2(i,:) = transformFT(T_A_2,[ft2_offset*cos(theta(i,:));ft2_offset*sin(theta(i,:));0])*right_wrench(i,:)';
+    F_A_1(i,:) = transformFT(T_A_1,[0;0;0])*left_wrench(i,:)';
+    F_A_2(i,:) = transformFT(T_A_2,[ft2_offset;0;0])*right_wrench(i,:)';
     
     %%Gravity Forces on links
     com2_offset = com2(1);
     G_A_1(i,:) = (transformFT(T_A_1,com1)*m1*g)';
-    G_A_2(i,:) = (transformFT(T_A_2,[com2_offset*cos(theta(i,:)); com2_offset*sin(theta(i,:));0])*m2*g)';
+    G_A_2(i,:) = (transformFT(T_A_2,com2)*m2*g)';
     G(i,:) = G_A_1(i,:) + G_A_2(i,:);
 
     W_A(i,:) = F_A_1(i,:) + F_A_2(i,:) + G(i,:);
@@ -126,12 +126,21 @@ function [Phyp  Rhyp] = algorithmPrismatic(data,mass1,mass2,comass1,comass2,Ic1,
     %%Hypothesis Computation
     P(i,:) = W_A(i,:) - dh_A_P(i,:);
     R(i,:) = W_A(i,:) - dh_A_R(i,:);
+    
+    if i ==1
+        Phyp_cum(i) = sum(P(i,:).*P(i,:));
+        Rhyp_cum(i) = sum(R(i,:).*R(i,:));
+    else
+        Phyp_cum(i) = Phyp_cum(i-1) + sum(P(i,:).*P(i,:));
+        Rhyp_cum(i) = Rhyp_cum(i-1) + sum(R(i,:).*R(i,:));
+    end
+    
   
   end
   
-  Phyp = norm(sum(P.*P));
-  Rhyp = norm(sum(R.*R));
+  Phyp = sum(sum(P.*P)');
+  Rhyp = sum(sum(R.*R)');
   hyp_diff = Phyp - Rhyp;
   
-% %   plots(t, d, theta, Sp, Sr, V_A_PJ, V_A_RJ, V_A_1, V_A_P2, V_A_R2, h_A_P, h_A_R, F_A_1, F_A_2, W_A, P, R);
+% %   plots(t, d, theta, Sp, Sr, V_A_PJ, V_A_RJ, V_A_1, V_A_P2, V_A_R2, h_A_P, h_A_R, F_A_1, F_A_2, G_A_1, G_A_2, W_A, P, R);
 end

@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+<sdf version="1.6">
+  <world name="default">
+
+  <!--physics name='default_physics' default='0' type='ode'>
+      <max_step_size>0.001</max_step_size>
+      <real_time_factor>1</real_time_factor>
+      <real_time_update_rate>1000</real_time_update_rate>
+      <gravity>0 0 -9.8</gravity>
+      <magnetic_field>6e-06 2.3e-05 -4.2e-05</magnetic_field>
+    </physics-->
+
+    <!-- Light -->
+    <include>
+      <uri>model://sun</uri>
+      <pose frame="">0 0 1 0 0 0</pose>
+    </include>
+
+    <!-- Ground Plane -->
+    <include>
+      <uri>model://ground_plane</uri>
+    </include>
+
+    <!-- Beer -->
+    <include>
+      <uri>model://beer</uri>
+      <pose frame="">0.3 0.165 0.47 0.32 0 0</pose>
+      <static>true</static>
+    </include>
+
+    <include>
+	<uri>model://icub_with_hands</uri>
+    </include>
+
+  </world>
+</sdf>
