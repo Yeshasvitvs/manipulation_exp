@@ -4,7 +4,10 @@ clc;
 
 g = [0;0;-9.8;0;0;0]; %%Gravity
 
-filename = '/home/yeshi/projects/manipulation_exp/manipulation/data/onetestpdata1.txt';
+cd ../
+path =  strcat(char(pwd),'/manipulation/data/');
+
+filename = strcat(path,'fonetestpdata5.txt');
 data = importdata(filename);
 
 % % data = [];
@@ -109,6 +112,7 @@ s = sign (hypdiff);
 ipositif = sum (s (:) == 1)
 inegatif = sum (s (:) == - 1)
 
+cd ./matlab_files
 
 
  

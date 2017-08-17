@@ -78,8 +78,6 @@ for i=1:1:noise_check_count
                 0         0.0067035   0;
                 0         0         0.007]; %%Inertia at CoM - taken from  SDF
         com2 = [0.1; 0; -0.0125];
-
-        [hypdiff(i)] = algorithmPrismatic(data,m1,m2,com1,com2,I_c1,I_c2,g);
         
     else
         
@@ -95,10 +93,10 @@ for i=1:1:noise_check_count
                 0        0.007   0;
                 0        0         0.007]; %%Inertia at CoM - taken from  SDF
         com2 = [0.15; 0; 0];
-
-        [hypdiff(i)] = algorithmRevolute(data,m1,m2,com1,com2,I_c1,I_c2,g);
         
     end
+    
+    [hypdiff(i) phyp(i) rhyp(i)] = jointEstimationAlgorithm(model,data,m1,m2,com1,com2,I_c1,I_c2,g);
     
 end
 
@@ -106,19 +104,19 @@ if(add_noise)
     
     hypdiff;
     
-    s1 = sign (hypdiff);
-    ipositif1 = sum (s1 (:) == 1);
-    inegatif2 = sum (s1 (:) == - 1);
+    s = sign (hypdiff);
+    ipositif = sum (s (:) == 1);
+    inegatif = sum (s (:) == - 1);
     
     if(strcmp(model,'prismatic'))
-        phypdiffErr = (ipositif1/noise_check_count)*100
+        phypdiffErr = (ipositif/noise_check_count)*100
     else
-        rhypdiffErr = (inegatif2/noise_check_count)*100
+        rhypdiffErr = (inegatif/noise_check_count)*100
     end
     
 else
 
-    hypdiff;
+    hypdiff
     
 end
 

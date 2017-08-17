@@ -109,7 +109,7 @@ function [hyp_diff Phyp Rhyp] = algorithmRevolute(data,mass1,mass2,comass1,comas
       end
       
       %%Computing External Wrench
-      ft2_offset = 0.275; %%NOTE: This theta angle is w.r.t the first link, but it has to be gotten w.r.t the world
+      ft2_offset = 0.275;
       F_A_1(i,:) = transformFT(T_A_1,[0;0;0])*left_wrench(i,:)';
       F_A_2(i,:) = transformFT(T_A_2,[ft2_offset;0;0])*right_wrench(i,:)';
 

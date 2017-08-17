@@ -4,7 +4,7 @@ clc;
 
 g = [0;0;-9.8;0;0;0]; %%Gravity
 
-model = 'prismatic';
+model = 'revolute';
 
 mat_data_directory_path = strcat(char(pwd),'/FINAL_DATA_MAT/force_control/');
 cd ../
@@ -55,6 +55,7 @@ for n=1:1:num_files
              0           0.0067035   0;
              0           0           0.007]; %%Inertia at CoM - taken from  SDF
        I_c2 = [];
+       
    else
            
        %%These are for revolute model
@@ -96,12 +97,8 @@ for n=1:1:num_files
        S2(3,3) = S2(3,3) + S2(3,3)*change;
        I_c2 = U2*S2*V2';
 
-       if(strcmp(model,'prismatic'))
-           [hypdiff phyp rhyp] = algorithmPrismatic(data,m1,m2,com1,com2,I_c1,I_c2,g);
-       else
-           [hypdiff phyp rhyp] = algorithmRevolute(data,m1,m2,com1,com2,I_c1,I_c2,g);
-       end
-
+       [hypdiff phyp rhyp] = jointEstimationAlgorithm(model,data,m1,m2,com1,com2,I_c1,I_c2,g);
+       
        dummy = strsplit(data_file_name,'/');
        fname = strsplit(char(dummy(end)),'.');
        mat_file_name = strcat(char(fname(1)),'mchange',num2str(j),'.mat');

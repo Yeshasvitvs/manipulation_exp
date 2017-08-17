@@ -111,7 +111,7 @@ function [hyp_diff Phyp Rhyp] = algorithmPrismatic(data,mass1,mass2,comass1,coma
     end
     
     %%Computing External Wrench
-    ft2_offset = 0.225; %%NOTE: This theta angle is w.r.t the first link, but it has to be gotten w.r.t the world
+    ft2_offset = 0.225;
     F_A_1(i,:) = transformFT(T_A_1,[0;0;0])*left_wrench(i,:)';
     F_A_2(i,:) = transformFT(T_A_2,[ft2_offset;0;0])*right_wrench(i,:)';
     
@@ -135,7 +135,6 @@ function [hyp_diff Phyp Rhyp] = algorithmPrismatic(data,mass1,mass2,comass1,coma
         Rhyp_cum(i) = Rhyp_cum(i-1) + sum(R(i,:).*R(i,:));
     end
     
-  
   end
   
   Phyp = sum(sum(P.*P)');

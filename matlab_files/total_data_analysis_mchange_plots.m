@@ -2,7 +2,7 @@ close all;
 clear all;
 clc;
 
-model = 'prismatic';
+model = 'revolute';
 
 mat_data_directory_path = strcat(char(pwd),'/FINAL_DATA_MAT/force_control/');
 if(strcmp(model,'prismatic'))

@@ -39,8 +39,6 @@ for n = 1:1:num_files
                 0         0.0067035   0;
                 0         0         0.007]; %%Inertia at CoM - taken from  SDF
         com2 = [0.1; 0; -0.0125];
-
-        [hypdiff(n) phyp(n) rhyp(n)] = algorithmPrismatic(data,m1,m2,com1,com2,I_c1,I_c2,g);
         
     else
         
@@ -56,10 +54,10 @@ for n = 1:1:num_files
                 0        0.007   0;
                 0        0         0.007]; %%Inertia at CoM - taken from  SDF
         com2 = [0.15; 0; 0];
-
-        [hypdiff(n) phyp(n) rhyp(n)] = algorithmRevolute(data,m1,m2,com1,com2,I_c1,I_c2,g);
         
     end
+    
+    [hypdiff(n) phyp(n) rhyp(n)] = jointEstimationAlgorithm(model,data,m1,m2,com1,com2,I_c1,I_c2,g);
     
 end
 
