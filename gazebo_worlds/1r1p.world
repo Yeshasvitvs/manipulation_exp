@@ -1,0 +1,27 @@
+<?xml version="1.0" ?>
+<sdf version="1.6">
+  <world name="default">
+    <!--physics name='default_physics' default='0' type='ode'>
+      <max_step_size>0.001</max_step_size>
+      <real_time_factor>1</real_time_factor>
+      <real_time_update_rate>1000</real_time_update_rate>
+      <ode>
+        <solver>
+          <type>quick</type>
+          <iters>50</iters>
+          <sor>1.0</sor>
+          <use_dynamic_moi_rescaling>false</use_dynamic_moi_rescaling>
+        </solver>
+      </ode>
+    </physics-->
+    <include>
+      <uri>model://ground_plane</uri>
+    </include>
+    <include>
+      <uri>model://sun</uri>l
+    </include>
+    <include>
+      <uri>model://floating_base_1R1P_2Link</uri>
+    </include>
+  </world>
+</sdf>
