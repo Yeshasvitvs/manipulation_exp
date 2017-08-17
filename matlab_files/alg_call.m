@@ -4,11 +4,14 @@ clc;
 
 g = [0;0;-9.8;0;0;0]; %%Gravity
 
-model = 'prismatic'
+model = 'prismatic';
+
+cd ../
+path =  strcat(char(pwd),'/manipulation/data/');
 
 if(strcmp(model,'prismatic'))
     
-    filename = '/home/yeshi/projects/manipulation_exp/manipulation/data/fonetestpdata1.txt';
+    filename = strcat(path,'fonetestpdata1.txt');
     %%Prismatic Model - Rigid Body Properties
     m1 = 4.5; %%Kgs
     I_c1 = [0.001133   0         0;
@@ -24,7 +27,7 @@ if(strcmp(model,'prismatic'))
 
 else
     
-     filename = '/home/yeshi/projects/manipulation_exp/manipulation/data/fonetestrdata1.txt';
+    filename = strcat(path,'fonetestrdata1.txt');
     %%Revolute Model - Rigid Body Properties
     m1 =4.5; %%Kgs
     I_c1 = [0.001801   0         0;
@@ -131,3 +134,5 @@ for step=10:50:size(data,1)
         break;
     end
 end
+
+cd ./matlab_files

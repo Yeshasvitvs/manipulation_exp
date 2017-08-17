@@ -6,12 +6,16 @@ g = [0;0;-9.8;0;0;0]; %%Gravity
 
 model = 'prismatic';
 
+mat_data_directory_path = strcat(char(pwd),'/FINAL_DATA_MAT/force_control/');
+cd ../
+data_directory_path = strcat(char(pwd),'/manipulation/data/FINAL_DATA/force_control/');
+
 if(strcmp(model,'prismatic'))
-    mat_data_directory_name = '/home/yeshi/projects/manipulation_exp/matlab_files/FINAL_DATA_MAT/force_control/mchange_pdata/';
-    data_directory_name = '/home/yeshi/projects/manipulation_exp/manipulation/data/FINAL_DATA/force_control/pdata/';
+    mat_data_directory_name = strcat(mat_data_directory_path,'mchange_pdata/');
+    data_directory_name = strcat(data_directory_path,'pdata/');
 else
-    mat_data_directory_name = '/home/yeshi/projects/manipulation_exp/matlab_files/FINAL_DATA_MAT/force_control/mchange_rdata/';
-    data_directory_name = '/home/yeshi/projects/manipulation_exp/manipulation/data/FINAL_DATA/force_control/rdata/';
+    mat_data_directory_name = strcat(mat_data_directory_path,'mchange_rdata/');
+    data_directory_name = strcat(data_directory_path,'rdata/');
 end
 
 mat_data_directory = dir([mat_data_directory_name]);
@@ -107,3 +111,5 @@ for n=1:1:num_files
    end 
    
 end
+
+cd ../../../

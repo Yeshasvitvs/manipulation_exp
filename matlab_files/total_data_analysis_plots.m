@@ -6,10 +6,13 @@ g = [0;0;-9.8;0;0;0]; %%Gravity
 
 model = 'revolute';
 
+cd ../
+path =  strcat(char(pwd),'/manipulation/data/FINAL_DATA/force_control/');
+
 if(strcmp(model,'prismatic'))
-    data_directory_name = '/home/yeshi/projects/manipulation_exp/manipulation/data/FINAL_DATA/force_control/pdata/';
+    data_directory_name = strcat(path,'pdata/');
 else
-    data_directory_name = '/home/yeshi/projects/manipulation_exp/manipulation/data/FINAL_DATA/force_control/rdata/';
+    data_directory_name = strcat(path,'rdata/');
 end
 
 data_directory = dir([data_directory_name,'*.txt']);
@@ -60,6 +63,8 @@ for n = 1:1:num_files
     
 end
 
+cd ./matlab_files
+
 figure(1);
 xlim([ 0 6]); hold on;
 plot(1,phyp(1),'+r','LineWidth',1.5); hold on; plot(1,rhyp(1),'xb','LineWidth',1.5);
@@ -73,8 +78,8 @@ legend boxoff;
 
 if(strcmp(model,'prismatic'))
     set(gca,'XTickLabel',{'', '0.125 N','0.15 N','0.175 N','0.2 N','0.225 N',' '}); hold on;
-    print('phypdiff.png','-dpng','-r300');
+    print('figures/phypdiff.png','-dpng','-r300');
 else
     set(gca,'XTickLabel',{'', '0.51 N','0.52 N','0.53 N','0.54 N','0.55 N',' '}); hold on;
-    print('rhypdiff.png','-dpng','-r300');
+    print('figures/rhypdiff.png','-dpng','-r300');
 end

@@ -6,12 +6,16 @@ g = [0;0;-9.8;0;0;0]; %%Gravity
 
 model = 'revolute';
 
+mat_data_directory_path = strcat(char(pwd),'/FINAL_DATA_MAT/force_control/');
+cd ../
+data_directory_path = strcat(char(pwd),'/manipulation/data/FINAL_DATA/force_control/');
+
 if(strcmp(model,'prismatic'))
-    mat_data_directory_name = '/home/yeshi/projects/manipulation_exp/matlab_files/FINAL_DATA_MAT/force_control/pnoise_pdata/';
-    data_directory_name = '/home/yeshi/projects/manipulation_exp/manipulation/data/FINAL_DATA/force_control/pdata/';
+    mat_data_directory_name = strcat(mat_data_directory_path,'pnoise_pdata/');
+    data_directory_name = strcat(data_directory_path,'pdata/');
 else
-    mat_data_directory_name = '/home/yeshi/projects/manipulation_exp/matlab_files/FINAL_DATA_MAT/force_control/pnoise_rdata/';
-    data_directory_name = '/home/yeshi/projects/manipulation_exp/manipulation/data/FINAL_DATA/force_control/rdata/';
+    mat_data_directory_name = strcat(mat_data_directory_path,'pnoise_rdata/');
+    data_directory_name = strcat(data_directory_path,'rdata/');
 end
 
 mat_data_directory = dir([mat_data_directory_name]);
@@ -73,7 +77,7 @@ for n=1:1:num_files
                    0         0         0.007]; %%Inertia at CoM - taken from  SDF
                com2 = [0.1; 0; -0.0125];
                
-               [hypdiff(i) value(i)] = algorithmPrismatic(data,m1,m2,com1,com2,I_c1,I_c2,g);
+               hypdiff(i) = algorithmPrismatic(data,m1,m2,com1,com2,I_c1,I_c2,g);
 
            else
                
@@ -90,7 +94,7 @@ for n=1:1:num_files
                    0        0         0.007]; %%Inertia at CoM - taken from  SDF
                com2 = [0.15; 0; 0];
                
-               [hypdiff(i) value(i)] = algorithmRevolute(data,m1,m2,com1,com2,I_c1,I_c2,g);
+               hypdiff(i) = algorithmRevolute(data,m1,m2,com1,com2,I_c1,I_c2,g);
                
            end
            
@@ -108,3 +112,5 @@ for n=1:1:num_files
    end
     
 end
+
+cd ../../../

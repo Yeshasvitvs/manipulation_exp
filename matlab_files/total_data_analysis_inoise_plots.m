@@ -2,12 +2,13 @@ close all;
 clear all;
 clc;
 
-model = 'prismatic';
+model = 'revolute';
 
+mat_data_directory_path = strcat(char(pwd),'/FINAL_DATA_MAT/force_control/');
 if(strcmp(model,'prismatic'))
-    mat_data_directory_name = '/home/yeshi/projects/manipulation_exp/matlab_files/FINAL_DATA_MAT/force_control/inoise_pdata/';
+    mat_data_directory_name = strcat(mat_data_directory_path,'inoise_pdata/');
 else
-    mat_data_directory_name = '/home/yeshi/projects/manipulation_exp/matlab_files/FINAL_DATA_MAT/force_control/inoise_rdata/';
+    mat_data_directory_name = strcat(mat_data_directory_path,'inoise_rdata/');
 end
 
 mat_directory = dir([mat_data_directory_name,'*.mat']);
@@ -15,8 +16,7 @@ num_files = length(mat_directory(not([mat_directory.isdir])));
 
 sorted_list = [mat_directory(:).datenum].'; 
 [sorted_list,sorted_list] = sort(sorted_list);
-sorted_list = {mat_directory(sorted_list).name}; % Cell array of names in order by datenum.
-
+sorted_list = {mat_directory(sorted_list).name};
 
 for n=1:1:num_files
 
@@ -64,7 +64,7 @@ if(strcmp(model,'prismatic'))
     legend boxoff;
     set(gca,'FontSize',10.5,'LineWidth',1);
 % %     set(gcf,'Position',get(0,'Screensize'));
-    print('/home/yeshi/projects/manipulation_exp/matlab_files/figures/inoise_phypdiff_err.png','-dpng','-r300');
+    print('figures/inoise_phypdiff_err.png','-dpng','-r300');
 
 else
    
@@ -79,7 +79,7 @@ else
     legend boxoff;
     set(gca,'FontSize',10.5,'LineWidth',1);
 % %     set(gcf,'Position',get(0,'Screensize'));
-    print('/home/yeshi/projects/manipulation_exp/matlab_files/figures/inoise_rhypdiff_err.png','-dpng','-r300');
+    print('figures/inoise_rhypdiff_err.png','-dpng','-r300');
 
 end
 

@@ -8,10 +8,13 @@ model = 'revolulte';
 add_noise = false;
 noise_count = 1;
 
+cd ../
+path =  strcat(char(pwd),'/manipulation/data/');
+
 if(strcmp(model,'prismatic'))
-    filename = '/home/yeshi/projects/manipulation_exp/manipulation/data/fonetestpdata5.txt';
+    filename = strcat(path,'fonetestpdata5.txt');
 else
-    filename = '/home/yeshi/projects/manipulation_exp/manipulation/data/fonetestrdata5.txt';
+    filename = strcat(path,'fonetestrdata5.txt');
 end
 
 data1 = importdata(filename);
@@ -115,8 +118,10 @@ if(add_noise)
     
 else
 
-    hypdiff
+    hypdiff;
     
 end
+
+cd ./matlab_files/
 
 % % figure; plot(P); hold on; plot(R); legend('P','R')

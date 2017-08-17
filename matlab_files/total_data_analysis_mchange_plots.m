@@ -2,12 +2,13 @@ close all;
 clear all;
 clc;
 
-model = 'revolute';
+model = 'prismatic';
 
+mat_data_directory_path = strcat(char(pwd),'/FINAL_DATA_MAT/force_control/');
 if(strcmp(model,'prismatic'))
-    mat_data_directory_name = '/home/yeshi/projects/manipulation_exp/matlab_files/FINAL_DATA_MAT/force_control/mchange_pdata/';
+    mat_data_directory_name = strcat(mat_data_directory_path,'mchange_pdata/');
 else
-    mat_data_directory_name = '/home/yeshi/projects/manipulation_exp/matlab_files/FINAL_DATA_MAT/force_control/mchange_rdata/';
+    mat_data_directory_name = strcat(mat_data_directory_path,'mchange_rdata/');
 end
 
 mat_directory = dir([mat_data_directory_name,'*.mat']);
@@ -56,7 +57,7 @@ if(strcmp(model,'prismatic'))
     legend boxoff;
     set(gca,'FontSize',10.5,'LineWidth',1);
 % %     set(gcf,'Position',get(0,'Screensize'));
-    print('/home/yeshi/projects/manipulation_exp/matlab_files/figures/mchange_phypdiff_err.png','-dpng','-r300');
+    print('figures/mchange_phypdiff_err.png','-dpng','-r300');
 
 else
    
@@ -71,7 +72,7 @@ else
     legend boxoff;
     set(gca,'FontSize',10.5,'LineWidth',1);
 % %     set(gcf,'Position',get(0,'Screensize'));
-    print('/home/yeshi/projects/manipulation_exp/matlab_files/figures/mchange_rhypdiff_err.png','-dpng','-r300');
+    print('figures/mchange_rhypdiff_err.png','-dpng','-r300');
 
 end
 
