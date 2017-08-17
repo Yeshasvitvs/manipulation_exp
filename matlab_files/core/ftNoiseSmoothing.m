@@ -1,12 +1,4 @@
-function  w = ftNoiseSmoothing(snr, std, k, f, wrench)
-
-% %   %%Adding Additive White Gaussian Noise
-% %   wrench_noisy(:,1) = add_awgn_noise(wrench(:,1),snr);
-% %   wrench_noisy(:,2) = add_awgn_noise(wrench(:,2),snr);
-% %   wrench_noisy(:,3) = add_awgn_noise(wrench(:,3),snr);
-% %   wrench_noisy(:,4) = add_awgn_noise(wrench(:,4),snr);
-% %   wrench_noisy(:,5) = add_awgn_noise(wrench(:,5),snr);
-% %   wrench_noisy(:,6) = add_awgn_noise(wrench(:,6),snr);
+function  w = ftNoiseSmoothing(std, k, f, wrench)
 
   wrench_noisy = wrench + std*randn(size(wrench));
 

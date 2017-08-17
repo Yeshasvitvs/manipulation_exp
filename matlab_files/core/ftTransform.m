@@ -6,4 +6,5 @@ function wrench = ftTransform(H,w)
   
   transform = [E,zeros(3,3); zeros(3,3),E] * [eye(3,3),zeros(3,3); r',eye(3,3)];
   wrench = inv(transform)' * input_wrench;
+  
 end
